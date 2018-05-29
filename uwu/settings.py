@@ -7,7 +7,8 @@ SECRET_KEY = 'notsecret'
 DEBUG = True
 
 INSTALLED_APPS = (
-    'django.contrib.messages',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
     'django.contrib.staticfiles',
     'uwu.vulnerable',
 )
@@ -15,8 +16,7 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    # there's nothing that requires auth, technically, but maybe i should
-    # add an exercise...
+    # not yet
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
@@ -25,16 +25,15 @@ ROOT_URLCONF = 'uwu.urls'
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        # jinja2 for spicier template injection
+        'BACKEND': 'django.template.backends.jinja2.Jinja2',
         'DIRS': ['uwu/templates'],
-        # 'APP_DIRS': True,
         'OPTIONS': {
-            'debug': DEBUG,
+            'environment': 'uwu.vulnerable.jinja2.environment',
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.template.context_processors.static',
-                # 'django.contrib.messages.context_processors.messages',
             ],
         },
     },
@@ -49,6 +48,13 @@ DATABASES = {
     }
 }
 
+FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
+
+# extremely contrived, combined example of security misconfig and broken auth
+PASSWORD_HASHERS = [
+    'uwu.hashers.CrapHasher',
+]
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
@@ -60,11 +66,7 @@ STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, 'static/'),
 )
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
+# TODO
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -89,7 +91,8 @@ LOGGING = {
     }
 }
 
+# for the xxe example but maybe others...
 FILE_UPLOAD_HANDLERS = [
     "django.core.files.uploadhandler.MemoryFileUploadHandler",
 ]
-FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MiB :thinking:
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MiB
