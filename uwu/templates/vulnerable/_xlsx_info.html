@@ -1,0 +1,21 @@
+{% extends "challenge.html" %}
+
+{% block title %}XLSX Info{% endblock %}
+{% block content %}
+<p>
+Here's the metadata for your file:
+</p>
+<p>
+<pre><code>
+  name: {{ name }}
+  creator: {{ creator }}
+  created: {{ created }}
+  modified: {{ modified }}
+  lastModifiedBy: {{ lastModifiedBy }}
+
+</pre></code>
+
+<p>
+<a href="{{ url('xxe') }}">Try another.</a>
+</p>
+{% endblock %}

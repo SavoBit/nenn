@@ -1,0 +1,67 @@
+html, body {
+  background: #4f688e;
+  color: #e0ecff;
+  font-size: 20pt;
+  font-family: 'Inconsolata', sans-serif;
+}
+
+#content {
+  margin-top: 2em;
+}
+
+fieldset {
+  padding: 0.5em;
+  border: none;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3); 
+}
+
+a {
+  color: pink;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #f4bf42;
+}
+
+ul {
+  list-style-type: none;
+}
+
+code {
+  color: #f4bf42;
+  font-family: 'Inconsolata', monospace;
+}
+
+pre code {
+  border: 1px solid;
+  display: block;
+  overflow: scroll;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.inline-list li {
+  display: inline;
+}
+
+.inline-form {
+  display: inline-block;
+}
+
+.flex-spread {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.flex-item {
+  display: flex;
+}
+
+.button {
+  border: none;
+  text-align: center;
+  text-decoration: none;
+}

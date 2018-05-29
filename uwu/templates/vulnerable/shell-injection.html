@@ -1,0 +1,38 @@
+{% extends "challenge.html" %}
+
+{% block title %}Injection{% endblock %}
+{% block content %}
+<p>
+Here's an IP lookup service. The output looks kind of familiar...
+</p>
+<p>
+Can you exploit this service to run malicious code?
+</p>
+</p>
+{% if result %}
+<pre><code>
+{{ result }}
+</pre></code>
+<p>
+<a href="{{ url('shell-injection') }}">search another</a>
+</p>
+{% else %}
+<form action="{{ url('injection1') }}" method="POST">
+  <input name="host" type="text">
+  <input name="submit" type="submit" value="submit">
+</form>
+
+<br>
+<p>
+In this version, an attempt has been made to sanitize inputs by blacklisting
+dangerous characters.
+</p>
+<p>
+Can you still exploit it?
+</p>
+<form action="{{ url('injection2') }}" method="POST">
+  <input name="host" type="text">
+  <input name="submit" type="submit" value="submit">
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "challenge.html" %}
+
+{% block title %}Misconfiguration{% endblock %}
+{% block content %}
+<p>
+Hold onto your hats.
+</p>
+<p>
+When you <a href="{{ url('exception') }}">trigger an uncaught exception</a>
+in Django with <code>DEBUG&nbsp;=&nbsp;True</code>, it dumps the environment.
+</p>
+{% endblock %}

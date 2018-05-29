@@ -1,0 +1,15 @@
+{% extends "challenge.html" %}
+
+{% block title %}Oops{% endblock %}
+{% block content %}
+<p>
+Well, that's an error:
+</p>
+<pre><code>
+{{ error }}
+
+</code></pre>
+<p>
+<a href="{{ url(retry_name) }}">Try again.</a>
+</p>
+{% endblock %}

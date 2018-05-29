@@ -1,0 +1,98 @@
+{% extends "challenge.html" %}
+
+{% block title %}XXE{% endblock %}
+
+{% block content %}
+<!--
+<p>An XML External Entity (XXE) attack is an attack on XML-parsing applications.
+An application is vulnerable if the parser naively resolves external entities
+in XML documents. This is the default behavior for many older parsing libraries.
+</p>
+<p>Here's an example document type definition which can be used to disclose
+<code>/etc/passwd:</code>
+<pre>
+    <code>
+&#x3C;?xml version=&#x22;1.0&#x22; encoding=&#x22;ISO-8859-1&#x22;?&#x3E;
+&#x3C;!DOCTYPE foo [
+   &#x3C;!ELEMENT foo ANY&#x3E;
+   &#x3C;!ENTITY xxe SYSTEM &#x22;file:///etc/passwd&#x22;&#x3E;]&#x3E;
+&#x3C;foo&#x3E;&#x26;xxe;&#x3C;/foo&#x3E;
+    </code>
+</pre>
+-->
+</p>
+<p>Here's a simple XLSX file metadata viewer, and the source used to extract the XLSX
+author information. Can you exploit the handler to disclose secret files?
+</p>
+<fieldset class="flex-spread">
+  <form class="flex-item flex-spread" action='/xlsx-info' method="POST" enctype="multipart/form-data">
+    <input class="button" name="file" type="file" />
+    <input class="button" type="submit" value="Get Info" name="submit">
+  </form>
+  <div class="flex-item"><a class="button" href="{{ STATIC_URL }}/files/timesheet.xlsx">safe</a></div>
+  <div class="flex-item"><a class="button" href="{{ STATIC_URL }}/files/timesheet-weaponized.xlsx">weaponized</a></div>
+</fieldset>
+
+<pre>
+    <code>
+import xml.sax
+import zipfile
+
+
+class XLSXCoreHandler(xml.sax.ContentHandler):
+    def __init__(self, result_dict):
+        self.res = result_dict
+        xml.sax.ContentHandler.__init__(self)
+
+    def startElement(self, name, attrs):
+        self.tmp = ''
+
+    def endElement(self, name):
+        if name == "dc:creator":
+            self.res['creator'] = self.tmp
+        elif name == 'cp:lastModifiedBy':
+            self.res['lastModifiedBy'] = self.tmp
+        elif name == 'dcterms:modified':
+            self.res['modified'] = self.tmp
+        elif name == 'dcterms:created':
+            self.res['created'] = self.tmp
+
+    def characters(self, content):
+        self.tmp += content
+
+
+class XLSXWorkbookHandler(xml.sax.ContentHandler):
+    def __init__(self, result_dict):
+        self.res = result_dict
+        xml.sax.ContentHandler.__init__(self)
+        self.tmp = ''
+        self.tmpattrs = None
+
+    def startElement(self, name, attrs):
+        self.tmp = ''
+        if name == 'sheet':
+            self.tmp = attrs.getValue('name')
+
+    def endElement(self, name):
+        if name == 'sheet':
+            self.res['name'] = self.tmp
+
+    def characters(self, content):
+        self.tmp += content
+
+
+def xlsx_attributes(f):
+    '''
+    Get the title, creator, creation and modification times, and last
+    modifying author for an XLSX.
+    '''
+    z = zipfile.ZipFile(f)
+    props = {}
+    with z.open('docProps/core.xml') as f:
+        xml.sax.parse(f, XLSXCoreHandler(props))
+    with z.open('xl/workbook.xml') as f:
+        xml.sax.parse(f, XLSXWorkbookHandler(props))
+    return props
+    </code>
+</pre>
+{% endblock %}
