@@ -3,23 +3,6 @@
 {% block title %}XXE{% endblock %}
 
 {% block content %}
-<!--
-<p>An XML External Entity (XXE) attack is an attack on XML-parsing applications.
-An application is vulnerable if the parser naively resolves external entities
-in XML documents. This is the default behavior for many older parsing libraries.
-</p>
-<p>Here's an example document type definition which can be used to disclose
-<code>/etc/passwd:</code>
-<pre>
-    <code>
-&#x3C;?xml version=&#x22;1.0&#x22; encoding=&#x22;ISO-8859-1&#x22;?&#x3E;
-&#x3C;!DOCTYPE foo [
-   &#x3C;!ELEMENT foo ANY&#x3E;
-   &#x3C;!ENTITY xxe SYSTEM &#x22;file:///etc/passwd&#x22;&#x3E;]&#x3E;
-&#x3C;foo&#x3E;&#x26;xxe;&#x3C;/foo&#x3E;
-    </code>
-</pre>
--->
 </p>
 <p>Here's a simple XLSX file metadata viewer, and the source used to extract the XLSX
 author information. Can you exploit the handler to disclose secret files?
