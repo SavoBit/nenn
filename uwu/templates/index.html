@@ -1,34 +1,23 @@
-{% extends "base.html" %}
-
-{% block style %}
-<link rel="stylesheet" href="{{ STATIC_URL }}css/reveal.css">
-<link rel="stylesheet" href="{{ STATIC_URL }}css/slides.css">
-{% endblock %}
+{% extends "challenge.html" %}
 
 {% block content %}
-<div class="reveal">
-  <div class="slides">
-    <section id="title" class="level3 center">
-      <h2>WebApp Security 101</h2>
-      <h4>Exploiting and Mitigating the OWASP Top 10</h4>
-    </section>
-
-  </div>
+<div id="content">
+  <h2 class="close-h"><a href="/" class="no-dec">WebApp Security 101</a></h2>
+  <h4 class="close-h">Exploiting and Mitigating the OWASP Top 10</h4>
+  <p>
+  This is a Django app exposing (many) intentional vulnerabilities for use as
+  an educational security tool. It should not be deployed to internet-facing
+  servers, as they will be compromised.
+  </p>
+  </p>
+  <p>Looks like nobody's defaced this instance quite yet, so let's get started.</p>
+  <ul>
+    <li>
+      <a href="{{ url('login') }}?next=slides">View the slides</a>
+    </li>
+    <li>
+      <a href="{{ url('exercises') }}">View the exercises</a>
+    </li>
+  </ul>
 </div>
-
-<script src="{{ STATIC_URL }}js/reveal.js"></script>
-<script>
-for (let li of document.getElementsByTagName("li")) {
-  li.classList.add("fragment");  // this is distracting
-}
-
-Reveal.initialize({
-  transition: 'none',
-  history: true,
-  center: false,
-  // only load external content for the current slide
-  // this is just for the iframes
-  viewDistance: 2,
-});
-</script>
 {% endblock %}

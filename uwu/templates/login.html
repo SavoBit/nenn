@@ -1,0 +1,42 @@
+{% extends "challenge.html" %}
+
+{% block content %}
+<div class="flex-spread flex-center">
+  <div>
+    {% if form.errors %}
+    <p>Wrong creds.</p>
+    {% endif %}
+
+    {% if next %}
+    {% if user and user.is_authenticated %}
+    <p>Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</p>
+    {% else %}
+    <p>Please login to see this page.</p>
+    {% endif %}
+    {% endif %}
+
+    <form method="post" action="{{ url('login') }}">
+    <!-- despite not having any CSRF middleware enabled, Django still
+    does global CSRF validation -->
+    {{ csrf_input }}
+    <table>
+    <tr>
+    <!-- use regular1:password1 in dev -->
+    <td>username</td>
+    <td>{{ form.username }}</td>
+    </tr>
+    <tr>
+    <td>password</td>
+    <td>{{ form.password }}</td>
+    </tr>
+    </table>
+
+    <input class="hidden-input" type="submit" value="login" />
+    <input type="hidden" name="next" value="{{ next }}" />
+    </form>
+    <!-- padding -->
+    <div style="height: 8em;"></div>
+  </div>
+</div>
+{% endblock %}

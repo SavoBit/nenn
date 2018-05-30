@@ -2,31 +2,13 @@ import codecs
 import pickle
 import subprocess
 
+from django.contrib import auth
 from django.db import connection
 from django.http import HttpResponse  # , Http404
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
 from . import badxml
-
-
-# todo
-# - [x] injection - did some contrived shell injection
-# - [ ] broken auth <- shitty PBKDF2 tuning doesn't count, eh
-# - [ ] sensitive data exposure <- maybe expose .git?
-# - [x] xxe
-# - [-] broken access control
-# - [x] security misconfiguration
-#   - be nice to serve this behind a webserver with directory listing enabled
-#   - then you could grab .git, and have sensitive data exposure while you're at it
-#   - or really, don't even bother with that. just have nginx set to try_files
-#   - in some sort of webroot, and .git could be found with any number of tools
-# - [x] xss
-#   - [x] reflected
-#   - [x] stored
-# - [x] insecure deserialization
-# - [ ] using components with known vulnerabilities <- dude, idk
-# - insufficient logging & monitoring
 
 
 def _render_string_with_jinja2(s, request=None, context=None):
@@ -117,6 +99,10 @@ def user_profile(request):
     pass
 
 
+def profile(request):
+    return render(request, 'vulnerable/profile.html', {'user': request.user})
+
+
 # Security Misconfiguration
 def exception(request):
     # TODO eh, if somebody decides to run this with DEBUG = False,
@@ -126,75 +112,75 @@ def exception(request):
 
 # NOTE this exposes a template injection without length restriction,
 # so it's a good place to break out the ol sys with import
-def reflected_xss(request, name=''):
-    '''Reflect a URL parameter into the DOM, no protections.
-    This actually contains a more general template injection.
-    '''
-    hello_template = '''
-        {% extends "challenge.html" %}
-        {% block title %}xss{% endblock %}
-        {% block content %}
-        <p>since the pentest found some xss, I'm redoing these to be more
-        illustrative. ''' + name + '</p> {% endblock %}'
-    html = _render_string_with_jinja2(hello_template, request=request)
-    return HttpResponse(html, content_type='text/html')
-
-
-def stored_xss(request, userid=-1):
-    '''Also easy. Also has a template injection.'''
-    # do the same thing but get the name from the db
-    pass
+# def reflected_xss(request, name=''):
+#     '''Reflect a URL parameter into the DOM, no protections.
+#     This actually contains a more general template injection.
+#     '''
+#     hello_template = '''
+#         {% extends "challenge.html" %}
+#         {% block title %}xss{% endblock %}
+#         {% block content %}
+#         <p>since the pentest found some xss, I'm redoing these to be more
+#         illustrative. ''' + name + '</p> {% endblock %}'
+#     html = _render_string_with_jinja2(hello_template, request=request)
+#     return HttpResponse(html, content_type='text/html')
+#
+#
+# def stored_xss(request, userid=-1):
+#     '''Also easy. Also has a template injection.'''
+#     # do the same thing but get the name from the db
+#     pass
 
 
 def _get_all_users():
-    from django.contrib.auth.models import User
-    return [u.email for u in User.models.all()]
+    return [u.email for u in auth.models.User.models.all()]
 
 
 # Insecure Deserialization, Broken Auth, Injection
-@require_http_methods(['POST'])
-def serialize_user(request):
+@require_http_methods(['GET'])
+def serialize_user(request, userid=-1):
     '''Use this for combined broken auth, security misconfiguration,
     and insecure deserialization. Might as well add a SQLi example here too.
     Why not.
     '''
-    email = request.POST.get('email')
-
+    query = "select * from auth_user where id = " + userid
     with connection.cursor() as cursor:
-        cursor.execute(
-            "select username, email, is_superuser from auth_user where email = '%s'",
-            [email])
+        cursor.execute(query)
         row = cursor.fetchone()
 
     if not row:
-        # TODO return a 404 or render a 404 page
-        pass
+        return HttpResponse("not found", content_type='text/plain')
 
     encoded = codecs.encode(pickle.dumps(row), 'base64')
-    return HttpResponse(encoded, content_type='text/plain')
-    # return render(request, 'some url', {'user': encoded})
+    return HttpResponse(encoded, content_type='application/octet-stream')
 
 
 # Insecure Deserialization
 @require_http_methods(['POST'])
-def insecure_deserialization(request):
-    # you can download a user profile then post here to check integrity
+def deserialize_user(request):
+    if not request.FILES:
+        return render(
+            request,
+            'vulnerable/_error.html',
+            {'error': 'Something went wrong/', 'retry_name': 'profile'}
+        )
     try:
-        user = pickle.loads(codecs.decode(request.body, 'base64'))
-
-        # print(user)
-        return HttpResponse(str(user), content_type='text/plain')
-        # return render(request, 'vulnerable/owasp2017/pickle.html', user)
+        user = pickle.loads(codecs.decode(request.FILES['file'].read(), 'base64'))
+        return render(request, 'vulnerable/profile.html', {'user': user})
     except Exception as e:
-        # need to handle this one since it's supposed be exploited
-        # print str(e)
-        return HttpResponse(b"decode error", content_type='text/plain')
-        # return render(request, 'vulnerable/owasp2017/spoiled.html')
+        return render(
+            request,
+            'vulnerable/_error.html',
+            {'error': 'Not a valid user file.', 'retry_name': 'profile'}
+        )
 
 
-# Using Components With Known Vulnerabilities TODO
-# | probably just show some examples
+# Using Components With Known Vulnerabilities
+# | no exercise
+# | is it low status to use Equifax as the example
 
 
-# Insufficient Logging and Monitoring TODO
-# | I'm. I don't know.
+# Insufficient Logging and Monitoring
+# | no exercise
+# | though a flashy option is to add monitoring to the container that you can
+# | show at the end as having detected some/all of the attacks

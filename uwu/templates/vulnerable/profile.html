@@ -1,0 +1,27 @@
+{% extends "challenge.html" %}
+
+{% block content %}
+
+{% if user and user.is_authenticated %}
+<h3>User Profile</h3>
+<pre><code>
+Username: {{ user.username }}
+Email:    {{ user.email }}
+Admin:    {{ user.is_superuser }}
+ID:       {{ user.id }}
+
+</pre></code>
+<!-- doesn't seem to reverse with url params, but I should refactor the
+serializer view and the profile view anyway... some other time -->
+<p style="text-align: center"><a href="/profile/{{ user.id }}">Download Backup</a></p>
+{% else %}
+<div class="flex-spread flex-center">
+<div>
+<p>Please <a href="{{ url('login') }}">login</a> to see this page.</p>
+<!-- padding -->
+<div style="height: 6em;"></div>
+</div>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -10,15 +10,15 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
+    'django.contrib.sessions',
     'uwu.vulnerable',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    # not yet
-    # 'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+
 )
 
 ROOT_URLCONF = 'uwu.urls'
@@ -50,6 +50,8 @@ DATABASES = {
 
 FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 
+# TODO AUTH_USER_MODEL = uwu.vulnerable.models.SecretUser
+LOGIN_REDIRECT_URL = '/profile'
 # extremely contrived, combined example of security misconfig and broken auth
 PASSWORD_HASHERS = [
     'uwu.hashers.CrapHasher',

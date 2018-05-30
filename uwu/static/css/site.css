@@ -3,6 +3,7 @@ html, body {
   color: #e0ecff;
   font-size: 20pt;
   font-family: 'Inconsolata', sans-serif;
+  height: 100%;
 }
 
 #content {
@@ -16,8 +17,8 @@ fieldset {
 }
 
 a {
-  color: pink;
-  text-decoration: none;
+  color: #e0ecff;
+  text-decoration: underline;
 }
 
 a:hover {
@@ -34,7 +35,7 @@ code {
 }
 
 pre code {
-  border: 1px solid;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3); 
   display: block;
   overflow: scroll;
   padding-left: 1em;
@@ -56,12 +57,27 @@ pre code {
   align-items: center;
 }
 
-.flex-item {
-  display: flex;
+.flex-center {
+  height: 100%;
+  flex-direction: vertical;
+}
+
+.hidden-input {
+  position: absolute;
+  margin-top: -1000em;
 }
 
 .button {
   border: none;
   text-align: center;
+  text-decoration: none;
+}
+
+.close-h {
+  margin: 0;
+  padding: 0;
+}
+
+.no-dec {
   text-decoration: none;
 }
