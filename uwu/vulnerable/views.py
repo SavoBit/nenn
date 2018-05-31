@@ -29,13 +29,13 @@ def injection1(request):
     '''A softball to get us started.'''
     host = request.POST.get('host')
     result = subprocess.run(
-        'host ' + host,
+        'whois ' + host,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         shell=True
     ).stdout
 
-    result = codecs.decode(result, 'utf-8')
+    result = codecs.decode(result, 'utf-8')  # can error if you're cheeky
     return render(request, 'vulnerable/shell-injection.html', {'result': result})
 
 
@@ -44,24 +44,28 @@ def injection2(request):
     '''A shoddy blacklisting attempt'''
     blacklist = ['&', ';', '|']
     host = request.POST.get('host')
+
     if any(filter(lambda x: x in blacklist, host)):
         result = b'Error! Some characters in your query are disallowed.\n'
     else:
         result = subprocess.run(
-            'host ' + host,
+            'whois ' + host,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             shell=True
         ).stdout
 
-    result = codecs.decode(result, 'utf-8')
+    result = codecs.decode(result, 'utf-8')  # can error if you're cheeky
     return render(request, 'vulnerable/shell-injection.html', {'result': result})
 
 
-# Broken Authentication TODO
+# Broken Authentication
 # | there's not a good way to demonstrate this one, probably?
 # | maybe go with the cookie idea, but i'm not sure this is all that easy to
 # | demonstrate
+# | Or just use the slides as an authentication bypass example lol
+# | passwords aren't hashed so there you go
+
 
 # Sensitive Data Exposure TODO
 # | there's a lot of ways to go with this; most of the interesting exercises
