@@ -12,11 +12,11 @@ ID:       {{ user.id }}
 
 </pre></code>
 
-<fieldset class="flex-spread">
-  <div class="flex-item"><a class="button" href="/profile/{{ user.username }}">Download Backup</a></div>
-  <!-- lol -->
-  <div class="flex-item"><a class="button" href="{{ url('restore-backup') }}">Restore Backup</a></div>
-  <!-- <div class="flex-item"><a class="button" href="{\{ url('hints/xxe.html') }}">weaponized</a></div> -->
+<fieldset>
+  <div class="flex-spread">
+    <div><a class="button" href="/profile/{{ user.username }}">Download Backup</a></div>
+    <div><a class="button" href="{{ url('restore-backup') }}">Restore Backup</a></div>
+  </div>
 </fieldset>
 
 {% else %}
