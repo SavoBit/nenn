@@ -3,3 +3,23 @@
 {% block style %}
     <link rel="stylesheet" href="{{ STATIC_URL }}css/challenge.css">
 {% endblock %}
+
+{% block content %}
+<div id="content">
+{% block header %}
+  <h2 id="schroedingers-header" class="close-h"><a href="/" class="no-dec">WebApp Security 101</a>:
+  <a class="no-dec" href="{{ url('exercises') }}">Exercises</a></h2>
+{% endblock %}
+{% block body %}
+{% endblock %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    if(window != window.parent) {
+      console.log(document.getElementById('schroedingers-header'));
+      document.getElementById('schroedingers-header').style.display = 'none';
+    }
+  </script>
+{% endblock %}
