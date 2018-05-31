@@ -1,5 +1,6 @@
 Dockerfile
 .dockerignore
+.git
 db.sqlite3
 solutions
 notes
