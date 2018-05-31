@@ -1,0 +1,39 @@
+{% extends "challenge.html" %}
+
+{% block content %}
+
+<h3>Restore User Profile</h3>
+
+<p>Here's a vulnerable user data restore function, and the backing source.
+Can you exploit the h͠and̷le̡r̸ ţ̷̕o͝͏ ͜d̡͞o͘ c̸̶̯̱͉̈ͬ̌̓̓̏͠r͔̼͚̦̪ͧ̂ͪͮ̄ͧi͇̙̙̺̮̝̎͂̽ͥ̍͠ͅm̷̖̜̮͓̲͓̠̃̆̑ͩ̈̑͛͠ě͕̱͕̜͢s̛̱̬͓̤̦̞̽ͧ͋́̎̃̕
+</p>
+
+<fieldset class="flex-spread">
+  <form class="flex-item flex-spread" action="{{ url('deserialize-user') }}" method="POST" enctype="multipart/form-data">
+    <input name="profile" type="file" />
+    <input type="submit" value="Restore" name="submit">
+  </form>
+</fieldset>
+
+<pre>
+    <code>
+@require_http_methods(['POST'])
+@auth.decorators.login_required
+def deserialize_user(request):
+    try:
+        data = pickle.loads(codecs.decode(request.FILES['profile'].read(), 'base64'))
+        user = auth.models.User.objects.get(username=data['username'])
+    except auth.models.User.DoesNotExist:
+        # User has valid backup but we lost their profile! How embarassing!
+        user = auth.models.User.create(**data)
+    except Exception as e:
+        return render(
+            request,
+            'vulnerable/_error.html',
+            {'error': 'Something went wrong.', 'retry_name': 'profile'}
+        )
+
+    return render(request, 'vulnerable/profile.html', {'user': user})
+    </code>
+</pre>
+{% endblock %}
