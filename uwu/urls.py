@@ -1,7 +1,7 @@
 # TODO hm, if we use PickleSerializer...
 from django.conf.urls import url
 # from django.urls import path
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic.base import TemplateView
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^slides/?$', TemplateView.as_view(template_name='slides.html'), name="slides"),
     url(r'^exercises/?$', TemplateView.as_view(template_name='exercises.html'), name="exercises"),
     url(r'^login/?$', LoginView.as_view(template_name='login.html'), name="login"),
+    url(r'^logout/?$', LogoutView.as_view(template_name='index.html'), name="logout"),
 
     # Injection
     url(r'^shell-injection/?$',
@@ -59,10 +60,9 @@ urlpatterns = [
     # just using external
 
     # Insecure Deserialization
-    url(r'^insecure-deserialization/?$',
-        TemplateView.as_view(template_name='vulnerable/insecure-deserialization.html'),
-        name='insecure-deserialization'),
-
-    url(r'^profile/(?P<userid>.*)/?$', challenges.serialize_user, name='serialize-user'),
+    url(r'^restore-backup/?$',
+        TemplateView.as_view(template_name='vulnerable/restore-backup.html'),
+        name='restore-backup'),
+    url(r'^profile/(?P<username>.*)/?$', challenges.serialize_user, name='serialize-user'),
     url(r'^deserialize/?$', challenges.deserialize_user, name='deserialize-user'),
 ] + staticfiles_urlpatterns()

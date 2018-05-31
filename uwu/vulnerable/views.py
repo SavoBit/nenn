@@ -1,10 +1,11 @@
+# TODO make extra functionality for admins, so that becoming admin actually does something
 import codecs
 import pickle
 import subprocess
 
 from django.contrib import auth
-from django.db import connection
-from django.http import HttpResponse  # , Http404
+from django.forms.models import model_to_dict
+from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
@@ -86,19 +87,13 @@ def xxe(request):
         return render(
             request,
             'vulnerable/_error.html',
-            {'error': 'Not a valid XLSX file.', 'retry_name': 'xxe'}
+            {'error': 'Something went wrong.', 'retry_name': 'xxe'}
         )
 
 
 # Broken Access Control TODO
 # | probably ahh do the thing where you can;;uh;;hm... access other people's
 # | profiles, idk
-# | TODO actually we'll just leave this as not-implemented because lol
-def user_profile(request):
-    # TODO need to do user sessions man
-    pass
-
-
 def profile(request):
     return render(request, 'vulnerable/profile.html', {'user': request.user})
 
@@ -132,47 +127,51 @@ def exception(request):
 #     pass
 
 
-def _get_all_users():
-    return [u.email for u in auth.models.User.models.all()]
-
-
-# Insecure Deserialization, Broken Auth, Injection
+# Insecure Deserialization, Broken Access Control, Broken Authn,...
 @require_http_methods(['GET'])
-def serialize_user(request, userid=-1):
+@auth.decorators.login_required  # authn w/o authz
+def serialize_user(request, username=None):
     '''Use this for combined broken auth, security misconfiguration,
-    and insecure deserialization. Might as well add a SQLi example here too.
-    Why not.
+    and insecure deserialization. Why not.
     '''
-    query = "select * from auth_user where id = " + userid
-    with connection.cursor() as cursor:
-        cursor.execute(query)
-        row = cursor.fetchone()
-
-    if not row:
-        return HttpResponse("not found", content_type='text/plain')
-
-    encoded = codecs.encode(pickle.dumps(row), 'base64')
-    return HttpResponse(encoded, content_type='application/octet-stream')
+    # TODO use this instead, move sqli to authentication
+    # from django.forms.models import model_to_dict
+    # model_to_dict(request.user)  <-- handle exception if no auth
+    # pickle that and return
+    # also, showing user profiles is ok but maybe don't serialize without
+    # authz. makes it *too easy*? or maybe it's ok to have a super easy
+    # example and a harder example. leaning towards no serialization;
+    #
+    # do something like... going to profile redirs to login if no auth
+    # but after, you can just view whoever you want
+    # turn off password hashing, then make the admin user have a flag?
+    # no need for flags *just yet*
+    try:
+        user = auth.models.User.objects.get(username=username)
+        encoded = codecs.encode(pickle.dumps(model_to_dict(user), 0), 'base64')
+        return HttpResponse(encoded, content_type='application/octet-stream')
+    except auth.models.User.DoesNotExist:
+        return Http404()
 
 
 # Insecure Deserialization
 @require_http_methods(['POST'])
+@auth.decorators.login_required
 def deserialize_user(request):
-    if not request.FILES:
-        return render(
-            request,
-            'vulnerable/_error.html',
-            {'error': 'Something went wrong/', 'retry_name': 'profile'}
-        )
     try:
-        user = pickle.loads(codecs.decode(request.FILES['file'].read(), 'base64'))
-        return render(request, 'vulnerable/profile.html', {'user': user})
+        data = pickle.loads(codecs.decode(request.FILES['profile'].read(), 'base64'))
+        user = auth.models.User.objects.get(username=data['username'])
+    except auth.models.User.DoesNotExist:
+        # User has valid backup but we lost their profile! How embarassing!
+        user = auth.models.User.create(**data)
     except Exception as e:
         return render(
             request,
             'vulnerable/_error.html',
-            {'error': 'Not a valid user file.', 'retry_name': 'profile'}
+            {'error': 'Something went wrong.', 'retry_name': 'profile'}
         )
+
+    return render(request, 'vulnerable/profile.html', {'user': user})
 
 
 # Using Components With Known Vulnerabilities

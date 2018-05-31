@@ -53,6 +53,9 @@ FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 # TODO AUTH_USER_MODEL = uwu.vulnerable.models.SecretUser
 LOGIN_REDIRECT_URL = '/profile'
 # extremely contrived, combined example of security misconfig and broken auth
+AUTHENTICATION_BACKENDS = [
+    'uwu.auth.CrapAuthBackend',
+]
 PASSWORD_HASHERS = [
     'uwu.hashers.CrapHasher',
 ]

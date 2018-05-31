@@ -11,9 +11,14 @@ Admin:    {{ user.is_superuser }}
 ID:       {{ user.id }}
 
 </pre></code>
-<!-- doesn't seem to reverse with url params, but I should refactor the
-serializer view and the profile view anyway... some other time -->
-<p style="text-align: center"><a href="/profile/{{ user.id }}">Download Backup</a></p>
+
+<fieldset class="flex-spread">
+  <div class="flex-item"><a class="button" href="/profile/{{ user.username }}">Download Backup</a></div>
+  <!-- lol -->
+  <div class="flex-item"><a class="button" href="{{ url('restore-backup') }}">Restore Backup</a></div>
+  <!-- <div class="flex-item"><a class="button" href="{\{ url('hints/xxe.html') }}">weaponized</a></div> -->
+</fieldset>
+
 {% else %}
 <div class="flex-spread flex-center">
 <div>
