@@ -75,15 +75,9 @@ def injection2(request):
 # XXE
 # TODO django can serialize models to xml so maybe replace this with a custom
 # xml deserializer. make the examples more cohesive and easier to demonstrate
+# wait yeah lol, if you just deserialize xml for the backup loader...
 @require_http_methods(['POST'])
 def xxe(request):
-    # TODO frontend needs to name the file form field 'file'
-    if not request.FILES:
-        return render(
-            request,
-            'vulnerable/_error.html',
-            {'error': 'Hm, couldn\'t upload that one.', 'retry_name': 'xxe'}
-        )
     try:
         props = badxml.xlsx_attributes(request.FILES['file'])
         return render(request, 'vulnerable/_xlsx_info.html', props)
