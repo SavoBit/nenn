@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+{% block style %}
+<link rel="stylesheet" href="{{ STATIC_URL }}css/reveal.css">
+<link rel="stylesheet" href="{{ STATIC_URL }}css/slides.css">
+{% endblock %}
+
+{% block content %}
+<div class="reveal">
+  <div class="slides">
+    <section id="title" class="level3 center">
+      <h2>WebApp Security 101</h2>
+      <h4>Exploiting and Mitigating the OWASP Top 10</h4>
+    </section>
+
+    <section id="owasp-top-10" class="level3">
+      <h3>OWASP Top 10</h3>
+      <ul>
+        <li>Awareness document listing the most common vulnerabilities</li>
+        <li><a href="https://www.owasp.org/index.php/Top_10-2017_Methodology_and_Data">Publicly sourced data</a> from 23 contributors covering ~114,000 web applications</li>
+        <li>Not a checklist, but a starting point</li>
+      </ul>
+    </section>
+    <section id="injection" class="level3">
+      <h3>01: Injection</h3>
+      <ul>
+        <li>Passing untrusted input to an interpreter for execution
+          <ul>
+            <li>e.g. a shell, a SQL backend...</li>
+          </ul></li>
+          <li>Trick the interpreter into
+            <ul>
+              <li>accessing data without authorization</li>
+              <li>running unintended commands</li>
+            </ul></li>
+      </ul>
+    </section>
+    <section id="prototypes" class="level3">
+      <h3>Prototypes</h3>
+      <ul>
+        <li>SQL Injection
+          <ul>
+            <li>Unsafely building dynamic queries with user input</li>
+            <li><code>query = &quot;SELECT * FROM USERS WHERE ID = '&quot; + input + &quot;'&quot;</code></li>
+          </ul></li>
+          <li>Command Injection
+            <ul>
+              <li>Passing user input directly to commands</li>
+              <li><code>cmd = &quot;whois &quot; + input</code></li>
+            </ul></li>
+      </ul>
+      <!-- add examples of SQLi and Command Injection -->
+    </section>
+    <section id="sql-injection-sqli" class="level3">
+      <h3>SQL Injection (SQLi)</h3>
+      <iframe src="{{ url('logout')}}?next={{ url('profile') }}" class="stretch">
+      </iframe>
+    </section>
+    <section id="command-injection" class="level3">
+      <h3>Command Injection</h3>
+      <iframe src="{{ url('shell-injection') }}" class="stretch">
+      </iframe>
+    </section>
+    <section id="in-the-wild" class="level3">
+      <h3>In the Wild</h3>
+      <ul>
+        <li><a href="https://hackerone.com/reports/303061">Command injection via insecure invocation of ImageMagick</a> ($6,800 bounty)</li>
+        <li><a href="https://www.google.com/search?lr=&amp;biw=1440&amp;bih=804&amp;tbs=qdr%3Ay&amp;ei=v5MNW93OPOa20PEP092awAU&amp;q=sql+injection+site%3Aseclists.org&amp;oq=sql+injection+site%3Aseclists.org&amp;gs_l=psy-ab.3...1270.1270.0.1549.1.1.0.0.0.0.128.128.0j1.1.0....0...1c..64.psy-ab..0.0.0....0.tT9_SzWcbWg">SQLi from the last year sent to Full Disclosure</a></li>
+      </ul>
+    </section>
+    <section id="mitigation" class="level3">
+      <h3>Mitigation</h3>
+      <ul>
+        <li>In general,
+          <ul>
+            <li>Use a safe API, don’t directly invoke interpreters</li>
+            <li>Distrust all input by default</li>
+          </ul></li>
+      </ul>
+    </section>
+    <section id="mitigation-sqli" class="level3">
+      <h3>Mitigation: SQLi</h3>
+      <ul>
+        <li>You’re safe from SQLi if you the Django ORM</li>
+        <li>But if you need raw SQL
+          <ul>
+            <li>Don’t build queries with normal string operations</li>
+            <li>Parameterize <code>.raw('SELECT * FROM app_model WHERE column = %s', [parameter])</code>
+              <ul>
+                <li>And don’t quote! <code>.raw(&quot;...column = '%s'&quot;, [parameter])</code> is the vulnerable query from the exercise</li>
+              </ul></li>
+          </ul></li>
+      </ul>
+    </section>
+    <section id="mitigation-command-injection" class="level3">
+      <h3>Mitigation: Command Injection</h3>
+      <ul>
+        <li>If you <em>must</em> execute shell commands, on a real service, from Django
+          <ul>
+            <li>Look again for alternatives</li>
+            <li>read the docs carefully</li>
+            <li>whitelist commands, if applicable</li>
+            <li>use subprocess, set <code>shell=False</code> (default), and prepare commands with <code>shlex.split</code></li>
+          </ul></li>
+      </ul>
+    </section>
+    <section id="cheat-sheets" class="level3">
+      <h3>Cheat Sheets</h3>
+      <ul>
+        <li><a href="https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet">SQL Injection Prevention Cheat Sheet</a> and the <a href="https://docs.djangoproject.com/en/2.0/topics/db/sql/#passing-parameters-into-raw">Django docs</a></li>
+        <li><a href="https://www.owasp.org/index.php/Injection_Prevention_Cheat_Sheet">Command Injection Prevention Cheat Sheet</a> and the <a href="https://docs.python.org/3/library/subprocess.html#using-the-subprocess-module">docs</a></li>
+      </ul>
+    </section>
+    <section id="broken-authentication" class="level3">
+      <h3>02: Broken Authentication</h3>
+      <ul>
+        <li>Examples include...
+          <ul>
+            <li>insufficient rate limiting on authentication endpoints</li>
+            <li>improper session lifecycle management
+              <ul>
+                <li>like failure to destroy sessions on logout</li>
+              </ul></li>
+              <li>allowing weak passwords</li>
+              <li>lack of MFA support</li>
+          </ul></li>
+      </ul>
+      <!-- probably better to just talk
+        ### Mitigation
+        - Implement missing authentication controls
+        - Possibly offload identity management to 3rd party services
+        - Diminish risk by keeping less sensitive data
+      -->
+    </section>
+    <section id="sensitive-data-exposure" class="level3">
+      <h3>03: Sensitive Data Exposure</h3>
+      <ul>
+        <li>The most common impactful attack</li>
+        <li>Examples include...
+          <ul>
+            <li>lack of encryption for data at rest or in transit <!-- plug bucket check --></li>
+            <li>old, weak, or misconfigured encryption algorithms <!-- plug certchecker --></li>
+            <li>improper key management</li>
+          </ul></li>
+      </ul>
+      <!-- no exercise -->
+    </section>
+    <section id="mitigation-1" class="level3">
+      <h3>Mitigation</h3>
+      <ul>
+        <li>Encrypt all the things
+          <ul>
+            <li><a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices">TLS Deployment Best Practices</a> (Qualys SSL Labs), <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html">S3 Bucket Encryption</a>, <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.html">RDS Encryption</a></li>
+          </ul></li>
+          <li>Mitigate risk by keeping less sensitive data (again)</li>
+          <li>Practice good key hygiene <!-- mention aws-vault, suggest IAM best practices --></li>
+      </ul>
+    </section>
+    <section id="xml-external-entities" class="level3">
+      <h3>04: XML External Entities</h3>
+      <pre><code>
+  &lt;?xml version=&quot;1.0&quot; standalone=&quot;yes&quot; ?&gt;
+  &lt;!DOCTYPE author [
+    &lt;!ELEMENT author&gt;
+    &lt;!ENTITY js &quot;John Smith&quot;&gt;
+  ]&gt;
+  &lt;author&gt;&amp;js;&lt;/author&gt;
+
+  --&gt; &lt;author&gt;John Smith&lt;/author&gt;
+      </code></pre>
+      <ul>
+        <li>Entities are XML data primitives</li>
+        <li>Documents can define new entities</li>
+        <li>Entity definitions can point to external resources via URL</li>
+      </ul>
+    </section>
+    <section id="exploiting-xxe" class="level3">
+      <h3>Exploiting XXE</h3>
+      <pre><code>
+  &lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;
+  &lt;!DOCTYPE foo [
+    &lt;!ELEMENT foo ANY &gt;
+    &lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot; &gt;
+  ]&gt;
+  &lt;foo&gt;&amp;xxe;&lt;/foo&gt;
+      </code></pre>
+      <ul>
+        <li>Weakly configured parsers expand external entity definitions</li>
+        <li>This can lead to...
+          <ul>
+            <li>sensitive data disclosure (above)</li>
+            <li>internal network access</li>
+            <li>remote code execution <!-- TODO show the payload --></li>
+          </ul></li>
+      </ul>
+      <!--
+        ### Exploiting XXE
+        - `<!ENTITY xxe SYSTEM "file:///etc/passwd" >`
+        - `<!ENTITY xxe SYSTEM "http://192.168.1.1/private" >`
+        - `<!ENTITY xxe SYSTEM "file:///dev/random" >`
+        - `<!ENTITY xxe SYSTEM "expect://id" >`
+      -->
+    </section>
+    <section id="exploiting-xxe-1" class="level3">
+      <h3>Exploiting XXE</h3>
+      <iframe src="{{ url('xxe') }}" class="stretch">
+      </iframe>
+    </section>
+    <section id="in-the-wild-1" class="level3">
+      <h3>In the Wild</h3>
+      <ul>
+        <li><a href="https://blog.detectify.com/2014/04/11/how-we-got-read-access-on-googles-production-servers/">Google XXE</a> ($10000 bounty)</li>
+      </ul>
+    </section>
+    <section id="mitigation-2" class="level3">
+      <h3>Mitigation</h3>
+      <ul>
+        <li>Don’t roll your own parser if possible</li>
+        <li>Use simpler data formats (JSON) if possible</li>
+        <li>Read the docs for safe security configuration</li>
+      </ul>
+    </section>
+    <section id="broken-access-control" class="level3">
+      <h3>05: Broken Access Control</h3>
+      <ul>
+        <li>Access data or functionality without authorization</li>
+        <li>Often because authentication (authn) is enforced, but authorization (authz) is forgotten</li>
+        <li>Basic skill of any attacker
+          <ul>
+            <li>You might have used it to view these slides</li>
+          </ul></li>
+      </ul>
+    </section>
+    <section id="example" class="level3">
+      <h3>Example</h3>
+      <iframe src="{{ url('broken-access-control') }}" class="stretch">
+      </iframe>
+    </section>
+    <section id="security-misconfiguration" class="level3">
+      <h3>06: Security Misconfiguration</h3>
+      <ul>
+        <li>Examples include...
+          <ul>
+            <li>Using default credentials</li>
+            <li>Exposing services to the internet unnecessarily</li>
+            <li>Missing security headers in HTTP</li>
+          </ul></li>
+          <li><a href="https://blog.cloudflare.com/inside-mirai-the-infamous-iot-botnet-a-retrospective-analysis/">Mirai botnet</a>, <a href="https://www.zdnet.com/article/mongodb-ransacking-starts-again-hackers-ransom-26000-unsecured-instances/">that time some skids ransomed 26,000 MongDB instances</a></li>
+      </ul>
+    </section>
+      <section id="exception">
+        <h4>
+          <code>DEBUG = True</code>
+        </h4>
+        <iframe src="{{ url('exception') }}" class="stretch">
+        </iframe>
+      </section>
+      <!-- mitigation is just talk. automate service config, centralize config management, etc -->
+    </section>
+    <section id="mitigation-3" class="level3">
+      <h3>Mitigation</h3>
+      <ul>
+        <li>Automate service configuration</li>
+        <li>Centralize configuration management</li>
+        <li>Read the docs</li>
+      </ul>
+    </section>
+    <section id="cross-site-scripting-xss" class="level3">
+      <h3>07: Cross-Site Scripting (XSS)</h3>
+      <ul>
+        <li>Malicious client-side scripts injected into content viewed by others</li>
+        <li>Execute code in the client security context
+          <ul>
+            <li>Exfiltrate information</li>
+            <li>Hijack user accounts</li>
+            <li>Sometimes <a href="https://www.blackhat.com/docs/us-15/materials/us-15-Seaborn-Exploiting-The-DRAM-Rowhammer-Bug-To-Gain-Kernel-Privileges.pdf">more interesting stuff</a></li>
+          </ul></li>
+      </ul>
+    </section>
+    <section id="varieties" class="level3">
+      <h3>Varieties</h3>
+      <ul>
+        <li><strong>Stored</strong>: unsafe input is stored and used to generate HTML later on</li>
+        <li><strong>Reflected</strong>: unsafe input from a request is reflected in the HTML without storing</li>
+        <li><strong>DOM</strong>: unsafe input from a request affects how the DOM behaves, but not what it contains</li>
+      </ul>
+    </section>
+      <section id="try-xss" class="center">
+        Try <a target="_blank" href="https://xss-game.appspot.com/level1">this</a>
+    <!-- padding -->
+    <div style="height: 8em;"></div>
+      </section>
+    <section id="mitigation-4" class="level3">
+      <h3>Mitigation</h3>
+      <ul>
+        <li>In general
+          <ul>
+            <li>Don’t put user input into locations intended for the user agent
+              <ul>
+                <li>e.g. between <code>&lt;script&gt;</code> tags, in <code>&lt;style&gt;</code> tags, in comments, in tag attributes</li>
+              </ul></li>
+              <li>Escape user input that goes into locations intended for the user
+                <ul>
+                  <li>i.e. between tags that form the document body</li>
+                </ul></li>
+          </ul></li>
+          <li>Consult the <a href="https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet">XSS Prevention Cheat Sheet</a></li>
+      </ul>
+    </section>
+    <section id="mitigation-contd" class="level3">
+      <h3>Mitigation cont’d</h3>
+      <ul>
+        <li>Django’s built-in template engines escape HTML automatically
+          <ul>
+            <li>but you still have to keep those rules in mind</li>
+            <li>e.g., <code>&lt;div class={{ user_input }}&gt;...</code> would still be vulnerable to <code>foo&nbsp;onmouseover=alert()</code></li>
+          </ul></li>
+          <li>Be cautious when rendering HTML through more bespoke means</li>
+      </ul>
+    </section>
+    <section id="insecure-deserialization" class="level3">
+      <h3>08: Insecure Deserialization</h3>
+      <ul>
+        <li>Deserializing untrusted objects</li>
+        <li>Vulnerabilities can be hard to find but usually dangerous</li>
+        <li>Examples usually sound contrived
+          <ul>
+            <li>but have you ever pickled to redis?
+              <ul>
+                <li>and unpickled out of it? <!-- consider a YAML example too --></li>
+              </ul></li>
+          </ul></li>
+      </ul>
+    </section>
+    <section id="insecure-deserialization-2" class="level3">
+      <h3>Insecure Deserialization</h3>
+      <iframe src="{{ url('restore-backup') }}" class="stretch">
+      </iframe>
+      <!-- mitigation is just don't do it, so -->
+      <!-- serialize to more primitive formats, like json (h...) -->
+    </section>
+    <section id="using-components-with-known-vulnerabilities" class="level3">
+      <h3>09: Using Components With Known Vulnerabilities</h3>
+      <a href="https://www.wired.com/story/equifax-breach-no-excuse/">Equifax</a>
+    </section>
+    <section id="insufficient-logging-monitoring" class="level3">
+      <h3>10: Insufficient Logging &amp; Monitoring</h3>
+      <ul>
+        <li>Log auditable events
+          <ul>
+            <li>AuthN, AuthN and AuthZ failures, high-value transactions</li>
+          </ul></li>
+          <li>Log to remote storage</li>
+          <li>Threat model (do risk assessment) to understand specific logging requirements</li>
+      </ul>
+      <!-- TODO there should be a sort of TL;DR slide -->
+    </section>
+    <section id="end" class="level3">
+      need a wrap up, need to consolidate references, few more functionality changes, proofread
+    </section>
+
+  </div>
+</div>
+
+<script src="{{ STATIC_URL }}js/reveal.js"></script>
+<script>
+  //  for (let li of document.getElementsByTagName("li")) {
+  //    li.classList.add("fragment");  // this is distracting
+  //  }
+
+  Reveal.initialize({
+    transition: 'none',
+    history: true,
+    center: false,
+    // only load external content for the current slide
+    // this is just for the iframes
+    viewDistance: 1,
+  });
+</script>
+{% endblock %}
