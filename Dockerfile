@@ -9,8 +9,8 @@ ADD requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 ADD . .
 RUN python manage.py migrate && python manage.py loaddata $FIXTURE
+# RUN head -c16 /dev/random | xxd -p > flag.txt  # not yet
 
-USER nobody
 ENV AWS_ACCESS_KEY_ID=AKIA01234567890ABCDE
 ENV AWS_SECRET_ACCESS_KEY=je7MtGbClwBF/2Zp9Utk/h3yCo8nvbEXAMPLEKEY
 
