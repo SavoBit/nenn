@@ -95,13 +95,6 @@ def xxe(request):
         )
 
 
-# Broken Access Control TODO
-# | probably ahh do the thing where you can;;uh;;hm... access other people's
-# | profiles, idk
-def profile(request):
-    return render(request, 'vulnerable/profile.html', {'user': request.user})
-
-
 # Security Misconfiguration
 def exception(request):
     # TODO eh, if somebody decides to run this with DEBUG = False,

@@ -31,11 +31,13 @@ urlpatterns = [
     # Broken Auth
     # no exercise
 
-    # Broken Access Control
-    url(r'^profile/?$', challenges.profile, name="profile"),
+    # Broken Access Control,... a lot of things
+    url(r'^profile/?$',
+        TemplateView.as_view(template_name='vulnerable/profile.html'),
+        name='profile'),
 
     # Sensitive Data Exposure
-    # let's expose .git? or the exception one does this too
+    # let's expose .git? or the exception one does this too, or really most of the others
 
     # XXE
     # TODO may be worth rewriting this one to deal with django's model [de]serialization
@@ -43,10 +45,6 @@ urlpatterns = [
     url(r'^xxe/?$', TemplateView.as_view(template_name='vulnerable/xxe.html'), name='xxe'),
     url(r'^xlsx-info/?$', challenges.xxe, name='xlsx-info'),
 
-    # Broken Access Control
-    url(r'^broken-access-control/?$',
-        TemplateView.as_view(template_name='vulnerable/profile.html'),
-        name='broken-access-control'),
 
     # Security Misconfiguration
     # FIXME boring example
