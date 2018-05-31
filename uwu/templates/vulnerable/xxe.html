@@ -11,11 +11,11 @@ author information. Can you exploit the handler to disclose secret files?
   <form class="flex-item flex-spread" action="{{ url('xlsx-info') }}" method="POST" enctype="multipart/form-data">
     <input name="file" type="file" />
     <input type="submit" value="Get Info" name="submit">
-  </form>
   <!-- TODO class button here is semantically wrong -->
   <div class="flex-item"><a class="button" href="{{ STATIC_URL }}/files/timesheet.xlsx">example</a></div>
   <div class="flex-item"><a class="button" href="{{ STATIC_URL }}/files/timesheet-weaponized.xlsx">weaponized</a></div>
   <!-- <div class="flex-item"><a class="button" href="{\{ url('hints/xxe.html') }}">weaponized</a></div> -->
+  </form>
 </fieldset>
 
 <pre>
