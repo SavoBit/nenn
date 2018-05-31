@@ -28,13 +28,8 @@ urlpatterns = [
     #     TemplateView.as_view(template_name='vulnerable/sql-injection.html'),
     #     name='sql-injection'),
 
-    # Broken Auth
-    # no exercise
-
     # Broken Access Control,... a lot of things
-    url(r'^profile/?$',
-        TemplateView.as_view(template_name='vulnerable/profile.html'),
-        name='profile'),
+    url(r'^profile/?$', challenges.profile, name='profile'),
 
     # Sensitive Data Exposure
     # let's expose .git? or the exception one does this too, or really most of the others

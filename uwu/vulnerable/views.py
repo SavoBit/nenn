@@ -23,6 +23,10 @@ def _render_string_with_jinja2(s, request=None, context=None):
     return engines._engines['jinja2'].from_string(s).render(request=request, context=context)
 
 
+def profile(request):
+    return render(request, 'vulnerable/profile.html', {'user': request.user})
+
+
 # Injection
 @require_http_methods(['POST'])
 def injection1(request):
