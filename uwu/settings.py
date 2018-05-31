@@ -3,6 +3,7 @@ import os.path
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
+ALLOWED_HOSTS = ['*']
 SECRET_KEY = 'notsecret'
 DEBUG = True
 
