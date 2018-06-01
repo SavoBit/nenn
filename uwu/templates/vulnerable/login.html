@@ -19,13 +19,11 @@
     <p>Please enter your credentials.</p>
     {% endif %}
 
+    <!-- just user regular1:password1 in dev -->
     <form method="post" action="{{ url('login') }}">
-    <!-- despite not having any CSRF middleware enabled, Django still
-    does global CSRF validation -->
     {{ csrf_input }}
     <table>
     <tr>
-    <!-- use regular1:password1 in dev -->
     <td>username</td>
     <td>{{ form.username }}</td>
     </tr>

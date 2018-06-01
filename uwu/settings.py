@@ -55,10 +55,10 @@ FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 LOGIN_REDIRECT_URL = '/profile'
 # extremely contrived, combined example of security misconfig and broken auth
 AUTHENTICATION_BACKENDS = [
-    'uwu.auth.CrapAuthBackend',
+    'uwu.vulnerable.auth.CrapAuthBackend',
 ]
 PASSWORD_HASHERS = [
-    'uwu.hashers.CrapHasher',
+    'uwu.vulnerable.hashers.CrapHasher',
 ]
 
 LANGUAGE_CODE = 'en-us'
