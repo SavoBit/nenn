@@ -13,7 +13,7 @@ urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='index.html'), name="home"),
     url(r'^slides/?$', TemplateView.as_view(template_name='slides.html'), name="slides"),
     url(r'^exercises/?$', TemplateView.as_view(template_name='exercises.html'), name="exercises"),
-    url(r'^login/?$', LoginView.as_view(template_name='login.html'), name="login"),
+    url(r'^login/?$', LoginView.as_view(template_name='vulnerable/login.html'), name="login"),
     url(r'^logout/?$', LogoutView.as_view(template_name='index.html'), name="logout"),
 
     # Injection

@@ -1,6 +1,6 @@
 {% extends "challenge.html" %}
 
-{% block content %}
+{% block body %}
 
 <h3>Restore User Profile</h3>
 
@@ -15,16 +15,14 @@ Can you exploit the h͠and̷le̡r̸ ţ̷̕o͝͏ ͜d̡͞o͘ c̸̶̯̱͉̈ͬ̌̓̓
   </form>
 </fieldset>
 
-<pre>
-    <code>
-@require_http_methods(['POST'])
-@auth.decorators.login_required
+<pre><code>
 def deserialize_user(request):
     try:
-        data = pickle.loads(codecs.decode(request.FILES['profile'].read(), 'base64'))
+        profile = request.FILES['profile'].read()
+        data = pickle.loads(codecs.decode(profile, 'base64'))
         user = auth.models.User.objects.get(username=data['username'])
     except auth.models.User.DoesNotExist:
-        # User has valid backup but we lost their profile! How embarassing!
+        # Restore the backup
         user = auth.models.User.create(**data)
     except Exception as e:
         return render(
@@ -34,6 +32,11 @@ def deserialize_user(request):
         )
 
     return render(request, 'vulnerable/profile.html', {'user': user})
-    </code>
-</pre>
+
+</code></pre>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
 {% endblock %}

@@ -13,6 +13,7 @@
       <h4>Exploiting and Mitigating the OWASP Top 10</h4>
     </section>
 
+    <!-- I started with markdown but then I ended up here. Hm -->
     <section id="owasp-top-10" class="level3">
       <h3>OWASP Top 10</h3>
       <ul>
@@ -24,14 +25,14 @@
     <section id="injection" class="level3">
       <h3>01: Injection</h3>
       <ul>
-        <li>Passing untrusted input to an interpreter for execution
+        <li>Passing untrusted input to an interpreter
           <ul>
-            <li>e.g. a shell, a SQL backend...</li>
+            <li>e.g. a SQL backend, a shell</li>
           </ul></li>
-          <li>Trick the interpreter into
+          <li>Trick the interpreter
             <ul>
-              <li>accessing data without authorization</li>
-              <li>running unintended commands</li>
+              <li>access data without authorization</li>
+              <li>run unintended commands</li>
             </ul></li>
       </ul>
     </section>
@@ -40,13 +41,13 @@
       <ul>
         <li>SQL Injection
           <ul>
-            <li>Unsafely building dynamic queries with user input</li>
-            <li><code>query = &quot;SELECT * FROM USERS WHERE ID = '&quot; + input + &quot;'&quot;</code></li>
+            <li>Unsafely building queries using user input</li>
+            <li><code>query = &quot;SELECT * FROM USERS WHERE ID = '&quot; + <span class="loud">input</span> + &quot;';&quot;</code></li>
           </ul></li>
           <li>Command Injection
             <ul>
               <li>Passing user input directly to commands</li>
-              <li><code>cmd = &quot;whois &quot; + input</code></li>
+              <li><code>cmd = &quot;whois &quot; + <span class="loud">input</span></code></li>
             </ul></li>
       </ul>
       <!-- add examples of SQLi and Command Injection -->
@@ -68,39 +69,31 @@
         <li><a href="https://www.google.com/search?lr=&amp;biw=1440&amp;bih=804&amp;tbs=qdr%3Ay&amp;ei=v5MNW93OPOa20PEP092awAU&amp;q=sql+injection+site%3Aseclists.org&amp;oq=sql+injection+site%3Aseclists.org&amp;gs_l=psy-ab.3...1270.1270.0.1549.1.1.0.0.0.0.128.128.0j1.1.0....0...1c..64.psy-ab..0.0.0....0.tT9_SzWcbWg">SQLi from the last year sent to Full Disclosure</a></li>
       </ul>
     </section>
-    <section id="mitigation" class="level3">
-      <h3>Mitigation</h3>
-      <ul>
-        <li>In general,
-          <ul>
-            <li>Use a safe API, don’t directly invoke interpreters</li>
-            <li>Distrust all client input by default</li>
-          </ul></li>
-      </ul>
+    <section id="mitigation-general" class="level3">
+      <h3>Mitigation: General</h3>
+        <ul>
+          <li>Use a safe API, don’t directly invoke interpreters</li>
+          <li>Distrust all client input by default</li>
+        </ul></li>
     </section>
     <section id="mitigation-sqli" class="level3">
       <h3>Mitigation: SQLi</h3>
       <ul>
-        <li>You’re safe from SQLi if you the Django ORM</li>
+        <li>You’re safe if you use the Django ORM</li>
         <li>But if you need raw SQL
           <ul>
             <li>Don’t build queries with normal string operations</li>
-            <li>Parameterize <code>.raw('SELECT * FROM app_model WHERE column = %s', [parameter])</code>
-              <ul>
-                <li>And don’t quote! <code>.raw(&quot;...column = '%s'&quot;, [parameter])</code> is the vulnerable query from the exercise</li>
-              </ul></li>
+            <li>Parameterize <code>AppModel.objects.raw('SELECT * FROM app_model WHERE column = %s', [parameter])</code>
           </ul></li>
       </ul>
     </section>
     <section id="mitigation-command-injection" class="level3">
-      <h3>Mitigation: Command Injection</h3>
+      <h3>Mitigation: Command&nbsp;Injection</h3>
       <ul>
         <li>If you <em>must</em> execute shell commands, on a real service, from Django
           <ul>
-            <li>Look again for alternatives</li>
-            <li>read the docs carefully</li>
-            <li>whitelist commands, if applicable</li>
-            <li>use subprocess, set <code>shell=False</code> (default), and prepare commands with <code>shlex.split</code></li>
+            <li>Whitelist commands, if applicable</li>
+            <li>Use subprocess, set <code>shell=False</code> (default), and prepare commands with <code>shlex.split</code></li>
           </ul></li>
       </ul>
     </section>
@@ -114,7 +107,7 @@
     <section id="broken-authentication" class="level3">
       <h3>02: Broken Authentication</h3>
       <ul>
-        <li>Examples include...
+        <li>Examples
           <ul>
             <li>insufficient rate limiting on authentication endpoints</li>
             <li>improper session lifecycle management
@@ -136,11 +129,11 @@
       <h3>03: Sensitive Data Exposure</h3>
       <ul>
         <li>The most common impactful attack</li>
-        <li>Examples include...
+        <li>Examples
           <ul>
-            <li>lack of encryption for data at rest or in transit <!-- plug bucket check --></li>
-            <li>old, weak, or misconfigured encryption algorithms <!-- plug certchecker --></li>
-            <li>improper key management</li>
+            <li>lack of encryption for data at rest or in transit</li> <!-- plug bucket check -->
+            <li>weak or misconfigured encryption algorithms</li>       <!-- plug certchecker -->
+            <li>improper key management</li>                           <!-- plug the IAM work -->
           </ul></li>
       </ul>
       <!-- no exercise -->
@@ -152,8 +145,8 @@
           <ul>
             <li><a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices">TLS Deployment Best Practices</a> (Qualys SSL Labs), <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html">S3 Bucket Encryption</a>, <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.html">RDS Encryption</a></li>
           </ul></li>
-          <li>Mitigate risk by keeping less sensitive data (again)</li>
           <li>Practice good key hygiene <!-- mention aws-vault, suggest IAM best practices --></li>
+          <li>Keep less sensitive data</li>
       </ul>
     </section>
     <section id="xml-external-entities" class="level3">
@@ -186,9 +179,9 @@
       </code></pre>
       <ul>
         <li>Weakly configured parsers expand external entity definitions</li>
-        <li>This can lead to...
+        <li>Usually leads to
           <ul>
-            <li>sensitive data disclosure (above)</li>
+            <li>sensitive data disclosure</li>
             <li>internal network access</li>
             <li>remote code execution <!-- TODO show the payload --></li>
           </ul></li>
@@ -216,7 +209,7 @@
       <h3>Mitigation</h3>
       <ul>
         <li>Don’t roll your own parser if possible</li>
-        <li>Use simpler data formats (JSON) if possible</li>
+        <li>Use simpler data formats if possible</li>
         <li>Read the docs for safe security configuration</li>
       </ul>
     </section>
@@ -225,10 +218,6 @@
       <ul>
         <li>Access data or functionality without authorization</li>
         <li>Often because authentication (authn) is enforced, but authorization (authz) is forgotten</li>
-        <li>Basic skill of any attacker
-          <ul>
-            <li>You might have used it to view these slides</li>
-          </ul></li>
       </ul>
     </section>
     <section id="example" class="level3">
@@ -268,11 +257,11 @@
     <section id="cross-site-scripting-xss" class="level3">
       <h3>07: Cross-Site Scripting (XSS)</h3>
       <ul>
-        <li>Malicious client-side scripts injected into content viewed by others</li>
+        <li>Malicious scripts injected into otherwise trusted content</li>
         <li>Execute code in the client security context
           <ul>
             <li>Exfiltrate information</li>
-            <li>Hijack user accounts</li>
+            <li>Hijack accounts</li>
             <li>Sometimes <a href="https://www.blackhat.com/docs/us-15/materials/us-15-Seaborn-Exploiting-The-DRAM-Rowhammer-Bug-To-Gain-Kernel-Privileges.pdf">more interesting stuff</a></li>
           </ul></li>
       </ul>
@@ -280,6 +269,7 @@
     <section id="varieties" class="level3">
       <h3>Varieties</h3>
       <ul>
+        <!-- TODO maybe each of these can have a tiny slide and an example -->
         <li><strong>Stored</strong>: unsafe input is stored and used to generate HTML later on</li>
         <li><strong>Reflected</strong>: unsafe input from a request is reflected in the HTML without storing</li>
         <li><strong>DOM</strong>: unsafe input from a request affects how the DOM behaves, but not what it contains</li>
@@ -287,24 +277,18 @@
     </section>
       <section id="try-xss" class="center">
         Try <a target="_blank" href="https://xss-game.appspot.com/level1">this</a>
-    <!-- padding -->
-    <div style="height: 8em;"></div>
       </section>
     <section id="mitigation-4" class="level3">
       <h3>Mitigation</h3>
       <ul>
-        <li>In general
-          <ul>
             <li>Don’t put user input into locations intended for the user agent
               <ul>
                 <li>e.g. between <code>&lt;script&gt;</code> tags, in <code>&lt;style&gt;</code> tags, in comments, in tag attributes</li>
               </ul></li>
               <li>Escape user input that goes into locations intended for the user
                 <ul>
-                  <li>i.e. between tags that form the document body</li>
+                  <li>i.e. between tags that form the body</li>
                 </ul></li>
-          </ul></li>
-          <li>Consult the <a href="https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet">XSS Prevention Cheat Sheet</a></li>
       </ul>
     </section>
     <section id="mitigation-contd" class="level3">
@@ -312,10 +296,10 @@
       <ul>
         <li>Django’s built-in template engines escape HTML automatically
           <ul>
-            <li>but you still have to keep those rules in mind</li>
-            <li>e.g., <code>&lt;div class={{ user_input }}&gt;...</code> would still be vulnerable to <code>foo&nbsp;onmouseover=alert()</code></li>
+            <li>but those rules still apply</li>
+            <li>e.g., <code>&lt;div class={% raw %}{{ <span class="loud">user_input</span> }}{% endraw %}&gt;...</code> would still be vulnerable to <code>user_input=<span class="loud">"foo&nbsp;onmouseover=alert()"</span></code></li>
           </ul></li>
-          <li>Be cautious when rendering HTML through more bespoke means</li>
+          <!--<li>Be cautious when rendering HTML through more bespoke means</li>-->
       </ul>
     </section>
     <section id="insecure-deserialization" class="level3">
@@ -341,7 +325,7 @@
     </section>
     <section id="using-components-with-known-vulnerabilities" class="level3">
       <h3>09: Using Components With Known Vulnerabilities</h3>
-      <a href="https://www.wired.com/story/equifax-breach-no-excuse/">Equifax</a>
+      <!--<a href="https://www.wired.com/story/equifax-breach-no-excuse/">Equifax</a>-->
     </section>
     <section id="insufficient-logging-monitoring" class="level3">
       <h3>10: Insufficient Logging &amp; Monitoring</h3>
@@ -372,7 +356,7 @@
   Reveal.initialize({
     transition: 'none',
     history: true,
-    center: false,
+    // center: false,
     // only load external content for the current slide
     // this is just for the iframes
     viewDistance: 1,

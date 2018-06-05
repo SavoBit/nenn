@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block style %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/challenge.css">
+<link rel="stylesheet" href="{{ STATIC_URL }}css/challenge.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
 {% endblock %}
 
 {% block content %}
@@ -13,13 +14,15 @@
 {% block body %}
 {% endblock %}
 </div>
+
+<script>
+  if(window != window.parent) {
+    console.log(document.getElementById('schroedingers-header'));
+    document.getElementById('schroedingers-header').style.display = 'none';
+  }
+</script>
+
 {% endblock %}
 
 {% block extra_scripts %}
-  <script>
-    if(window != window.parent) {
-      console.log(document.getElementById('schroedingers-header'));
-      document.getElementById('schroedingers-header').style.display = 'none';
-    }
-  </script>
 {% endblock %}
