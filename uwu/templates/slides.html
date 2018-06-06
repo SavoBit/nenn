@@ -10,11 +10,20 @@
 <div class="reveal">
   <div class="slides">
     <section id="title" class="level3 center">
-      <h2>WebApp Security 101</h2>
+      <h2>Fun With Magnets</h2>
       <h4>Exploiting and Mitigating the OWASP Top 10</h4>
     </section>
 
     <!-- I started with markdown but then I ended up here. Hm -->
+    <section id="security-objective" class="level3">
+      <h3>CIA</h3>
+      <ul>
+        <li>Confidentiality</li>
+        <li>Integrity</li>
+        <li>Availability</li>
+      </ul>
+    </section>
+
     <section id="owasp-top-10" class="level3">
       <h3>OWASP Top 10</h3>
       <ul>
@@ -23,6 +32,41 @@
         <li>Not a checklist, but a starting point</li>
       </ul>
     </section>
+
+    <section id="owasp-top-10-2" class="level4">
+      <h4>OWASP Top 10</h4>
+        <ol>
+          <li>Injection<span data-fragment-index="1" class="loud fragment">*</span></li>
+          <li>Broken Authentication</li>
+          <li>Sensitive Data Exposure</li>
+          <li>XML External Entities<span data-fragment-index="1" class="loud fragment">*</span></li>
+          <li>Broken Access Control<span data-fragment-index="1" class="loud fragment">*</span></li>
+          <li>Security Misconfiguration<span data-fragment-index="1" class="loud fragment">*</span></li>
+          <li>Cross-Site Scripting<span data-fragment-index="1" class="loud fragment">*</span></li>
+          <li>Insecure Deserialization<span data-fragment-index="1" class="loud fragment">*</span></li>
+          <li>Using Known Vulnerable Components</li>
+          <li>Insufficient Logging and Monitoring</li>
+        </ol>
+    </section>
+
+    <section id="owasp-top-10-3" class="level4">
+      <h4>OWASP Top 10</h4>
+      <div class="flex-spread">
+        <ol>
+          <li value="2">Broken Authentication</li>
+          <li value="3">Sensitive Data Exposure</li>
+          <li value="9">Using Known Vulnerable Components</li>
+          <li value="10">Insufficient Logging and Monitoring</li>
+          <li value="6">Security Misconfiguration<span class="loud">*</span></li>
+          <li value="1">Injection<span class="loud">*</span></li>
+          <li value="5">Broken Access Control<span class="loud">*</span></li>
+          <li value="7">Cross-Site Scripting<span class="loud">*</span></li>
+          <li value="4">XML External Entities<span class="loud">*</span></li>
+          <li value="8">Insecure Deserialization<span class="loud">*</span></li>
+        </ol>
+      </div>
+    </section>
+
     <section id="injection" class="level3">
       <h3>01: Injection</h3>
       <ul>
@@ -37,32 +81,37 @@
             </ul></li>
       </ul>
     </section>
+
     <section id="prototypes" class="level3">
       <h3>Prototypes</h3>
       <ul>
         <li>SQL Injection
           <ul>
             <li>Unsafely building queries using user input</li>
-            <li><code>query = &quot;SELECT * FROM USERS WHERE ID = '&quot; + <span class="loud">input</span> + &quot;';&quot;</code></li>
+            <li><code>query = "SELECT * FROM USERS WHERE ID = '" + <span class="danger">input</span> + "' and
+                PASSWORD = '" + <span class="danger">more_input</span> + "';"</code></li>
           </ul></li>
           <li>Command Injection
             <ul>
-              <li>Passing user input directly to commands</li>
-              <li><code>cmd = &quot;whois &quot; + <span class="loud">input</span></code></li>
+              <li>Passing user input directly to a shell</li>
+              <li><code>cmd = &quot;whois &quot; + <span class="danger">input</span></code></li>
             </ul></li>
       </ul>
       <!-- add examples of SQLi and Command Injection -->
     </section>
-    <section id="sql-injection-sqli" class="level3">
-      <h3>SQL Injection (SQLi)</h3>
+
+    <section id="exploiting-sqli" class="level4">
+      <h4>Exploiting SQL Injection (SQLi)</h4>
       <iframe src="{{ url('logout')}}?next={{ url('profile') }}" class="stretch">
       </iframe>
     </section>
-    <section id="command-injection" class="level3">
-      <h3>Command Injection</h3>
+
+    <section id="exploiting-command-injection" class="level4">
+      <h4>Exploiting Command Injection</h4>
       <iframe src="{{ url('shell-injection') }}" class="stretch">
       </iframe>
     </section>
+
     <section id="in-the-wild" class="level3">
       <h3>In the Wild</h3>
       <ul>
@@ -70,13 +119,15 @@
         <li><a href="https://www.google.com/search?lr=&amp;biw=1440&amp;bih=804&amp;tbs=qdr%3Ay&amp;ei=v5MNW93OPOa20PEP092awAU&amp;q=sql+injection+site%3Aseclists.org&amp;oq=sql+injection+site%3Aseclists.org&amp;gs_l=psy-ab.3...1270.1270.0.1549.1.1.0.0.0.0.128.128.0j1.1.0....0...1c..64.psy-ab..0.0.0....0.tT9_SzWcbWg">SQLi from the last year sent to Full Disclosure</a></li>
       </ul>
     </section>
+
     <section id="mitigation-general" class="level3">
       <h3>Mitigation: General</h3>
-        <ul>
-          <li>Use a safe API, don’t directly invoke interpreters</li>
-          <li>Distrust all client input by default</li>
-        </ul></li>
+      <ul>
+        <li>Use a safe API, don’t directly invoke interpreters</li>
+        <li>Distrust all client input by default</li>
+      </ul></li>
     </section>
+
     <section id="mitigation-sqli" class="level3">
       <h3>Mitigation: SQLi</h3>
       <ul>
@@ -88,35 +139,42 @@
           </ul></li>
       </ul>
     </section>
+
     <section id="mitigation-command-injection" class="level3">
       <h3>Mitigation: Command&nbsp;Injection</h3>
       <ul>
-        <li>If you <em>must</em> execute shell commands, on a real service, from Django
+        <li>If you <em>must</em> execute shell commands
           <ul>
             <li>Whitelist commands, if applicable</li>
             <li>Use subprocess, set <code>shell=False</code> (default), and prepare commands with <code>shlex.split</code></li>
           </ul></li>
       </ul>
     </section>
-    <section id="cheat-sheets" class="level3">
+
+    <!--
+      <section id="cheat-sheets" class="level3">
       <h3>Cheat Sheets</h3>
       <ul>
-        <li><a href="https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet">SQL Injection Prevention Cheat Sheet</a> and the <a href="https://docs.djangoproject.com/en/2.0/topics/db/sql/#passing-parameters-into-raw">Django docs</a></li>
-        <li><a href="https://www.owasp.org/index.php/Injection_Prevention_Cheat_Sheet">Command Injection Prevention Cheat Sheet</a> and the <a href="https://docs.python.org/3/library/subprocess.html#using-the-subprocess-module">docs</a></li>
+      <li><a href="https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet">SQL Injection Prevention Cheat Sheet</a> and the <a href="https://docs.djangoproject.com/en/2.0/topics/db/sql/#passing-parameters-into-raw">Django docs</a></li>
+      <li><a href="https://www.owasp.org/index.php/Injection_Prevention_Cheat_Sheet">Command Injection Prevention Cheat Sheet</a> and the <a href="https://docs.python.org/3/library/subprocess.html#using-the-subprocess-module">docs</a></li>
       </ul>
-    </section>
+      </section>
+    -->
+
     <section id="broken-authentication" class="level3">
       <h3>02: Broken Authentication</h3>
       <ul>
         <li>Examples
           <ul>
             <li>insufficient rate limiting on authentication endpoints</li>
+            <li>allowing weak passwords</li>
+            <li>lack of MFA support</li>
             <li>improper session lifecycle management
-              <ul>
-                <li>like failure to destroy sessions on logout</li>
-              </ul></li>
-              <li>allowing weak passwords</li>
-              <li>lack of MFA support</li>
+              <!--
+                <ul><li>like failure to destroy sessions on logout</li>
+                </ul>
+              -->
+            </li>
           </ul></li>
       </ul>
       <!-- probably better to just talk
@@ -245,18 +303,21 @@
             <li>Exposing services to the internet unnecessarily</li>
             <li>Missing security headers in HTTP</li>
           </ul></li>
-          <li><a href="https://blog.cloudflare.com/inside-mirai-the-infamous-iot-botnet-a-retrospective-analysis/">Mirai botnet</a>, <a href="https://www.zdnet.com/article/mongodb-ransacking-starts-again-hackers-ransom-26000-unsecured-instances/">that time some skids ransomed 26,000 MongDB instances</a></li>
+          <!-- gotta do some explicitly -->
+          <li class="fragment"><a href="https://blog.cloudflare.com/inside-mirai-the-infamous-iot-botnet-a-retrospective-analysis/">Mirai botnet</a>, <a href="https://www.zdnet.com/article/mongodb-ransacking-starts-again-hackers-ransom-26000-unsecured-instances/">that time some skids ransomed 26,000 MongDB instances</a></li>
       </ul>
     </section>
-      <section id="exception">
-        <h4>
-          <code>DEBUG = True</code>
-        </h4>
-        <iframe src="{{ url('exception') }}" class="stretch">
-        </iframe>
-      </section>
-      <!-- mitigation is just talk. automate service config, centralize config management, etc -->
+
+    <section id="exception">
+      <h4>
+        <code>DEBUG = True</code>
+      </h4>
+      <iframe src="{{ url('exception') }}" class="stretch">
+      </iframe>
     </section>
+    <!-- mitigation is just talk. automate service config, centralize config management, etc -->
+    </section>
+
     <section id="mitigation-3" class="level3">
       <h3>Mitigation</h3>
       <ul>
