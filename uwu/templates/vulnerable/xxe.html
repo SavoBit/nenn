@@ -13,7 +13,8 @@ author information. Can you exploit the handler to disclose secret files?
     <input type="submit" value="Get Info" name="submit">
     <!-- TODO class button here is semantically wrong -->
     <div><a class="button" href="{{ STATIC_URL }}/files/timesheet.xlsx">example</a></div>
-    <div><a class="button" href="{{ STATIC_URL }}/files/timesheet-weaponized.xlsx">weaponized</a></div>
+    <div><a class="button" href="#just-kidding" title="just kidding">solution</a></div>
+    <!-- <div><a class="button" href="{{ STATIC_URL }}/files/timesheet-weaponized.xlsx">weaponized</a></div> -->
     <!-- <div class="flex-item"><a class="button" href="{\{ url('hints/xxe.html') }}">weaponized</a></div> -->
   </form>
 </fieldset>
@@ -22,30 +23,9 @@ author information. Can you exploit the handler to disclose secret files?
     <code>
 import xml.sax
 import zipfile
-
-
-class XLSXCoreHandler(xml.sax.ContentHandler):
-    def __init__(self, result_dict):
-        self.res = result_dict
-        xml.sax.ContentHandler.__init__(self)
-
-    def startElement(self, name, attrs):
-        self.tmp = ''
-
-    def endElement(self, name):
-        if name == "dc:creator":
-            self.res['creator'] = self.tmp
-        elif name == 'cp:lastModifiedBy':
-            self.res['lastModifiedBy'] = self.tmp
-        elif name == 'dcterms:modified':
-            self.res['modified'] = self.tmp
-        elif name == 'dcterms:created':
-            self.res['created'] = self.tmp
-
-    def characters(self, content):
-        self.tmp += content
-
-
+    .
+    .
+    .
 class XLSXWorkbookHandler(xml.sax.ContentHandler):
     def __init__(self, result_dict):
         self.res = result_dict
@@ -73,8 +53,9 @@ def xlsx_attributes(f):
     '''
     z = zipfile.ZipFile(f)
     props = {}
-    with z.open('docProps/core.xml') as f:
-        xml.sax.parse(f, XLSXCoreHandler(props))
+        .
+        .
+        .
     with z.open('xl/workbook.xml') as f:
         xml.sax.parse(f, XLSXWorkbookHandler(props))
     return props
