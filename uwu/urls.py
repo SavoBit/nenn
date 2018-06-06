@@ -1,6 +1,4 @@
-# TODO hm, if we use PickleSerializer...
 from django.conf.urls import url
-# from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic.base import TemplateView
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
@@ -23,27 +21,20 @@ urlpatterns = [
     url(r'^injection1/?$', challenges.injection1, name='injection1'),
     url(r'^injection2/?$', challenges.injection2, name='injection2'),
 
-    # wrapped sqli into the profile page
-    # url(r'^sql-injection/?$',
-    #     TemplateView.as_view(template_name='vulnerable/sql-injection.html'),
-    #     name='sql-injection'),
-
     # Broken Access Control,... a lot of things
     url(r'^profile/?$', challenges.profile, name='profile'),
 
     # Sensitive Data Exposure
     # let's expose .git? or the exception one does this too, or really most of the others
 
-    # XXE
-    # TODO may be worth rewriting this one to deal with django's model [de]serialization
-    # keep the examples more cohesive?
+    # XXE TODO make PDF reports
     url(r'^xxe/?$', TemplateView.as_view(template_name='vulnerable/xxe.html'), name='xxe'),
     url(r'^xlsx-info/?$', challenges.xxe, name='xlsx-info'),
 
 
     # Security Misconfiguration
     # FIXME boring example
-    # maybe turn on directory listings? but then I'd need a real server on this thing
+    # maybe turn on directory listings? but then I'd want a real server on this thing
     url(r'^misconfiguration/?$',
         TemplateView.as_view(template_name='vulnerable/misconfiguration.html'),
         name='misconfiguration'),
@@ -58,4 +49,8 @@ urlpatterns = [
         name='restore-backup'),
     url(r'^profile/(?P<username>.*)/?$', challenges.serialize_user, name='serialize-user'),
     url(r'^deserialize/?$', challenges.deserialize_user, name='deserialize-user'),
+
+    # more challenging phantomjs thing
+    # TODO so let's make it reflect from the URL?
+    url(r'private/report/?$', challenges.report, name='report'),
 ] + staticfiles_urlpatterns()

@@ -17,7 +17,6 @@ def _render_string_with_jinja2(s, request=None, context=None):
     but we want to use Jinja. I just really want to demonstrate template
     injection.
     '''
-    # XXX so yeah, this can die
     from django.template import engines
     engines.all()  # this instantiates all the backends...
     return engines._engines['jinja2'].from_string(s).render(request=request, context=context)
@@ -95,8 +94,6 @@ def xxe(request):
 
 # Security Misconfiguration
 def exception(request):
-    # TODO eh, if somebody decides to run this with DEBUG = False,
-    # maybe this should render a page with general info about security config
     raise Exception('Hm')
 
 
@@ -129,18 +126,6 @@ def serialize_user(request, username=None):
     '''Use this for combined broken auth, security misconfiguration,
     and insecure deserialization. Why not.
     '''
-    # TODO use this instead, move sqli to authentication
-    # from django.forms.models import model_to_dict
-    # model_to_dict(request.user)  <-- handle exception if no auth
-    # pickle that and return
-    # also, showing user profiles is ok but maybe don't serialize without
-    # authz. makes it *too easy*? or maybe it's ok to have a super easy
-    # example and a harder example. leaning towards no serialization;
-    #
-    # do something like... going to profile redirs to login if no auth
-    # but after, you can just view whoever you want
-    # turn off password hashing, then make the admin user have a flag?
-    # no need for flags *just yet*
     try:
         user = auth.models.User.objects.get(username=username)
         encoded = codecs.encode(pickle.dumps(model_to_dict(user), 0), 'base64')
@@ -167,6 +152,14 @@ def deserialize_user(request):
         )
 
     return render(request, 'vulnerable/profile.html', {'user': user})
+
+
+# PhantomJS Examples
+def report(request):
+    user = request.user
+    employee = user.employee
+    print(employee)
+    pass
 
 
 # Using Components With Known Vulnerabilities

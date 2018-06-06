@@ -1,3 +1,4 @@
+# config stuff for jinja
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import reverse
 
