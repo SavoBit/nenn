@@ -125,6 +125,7 @@
         - Diminish risk by keeping less sensitive data
       -->
     </section>
+
     <section id="sensitive-data-exposure" class="level3">
       <h3>03: Sensitive Data Exposure</h3>
       <ul>
@@ -138,17 +139,19 @@
       </ul>
       <!-- no exercise -->
     </section>
+
     <section id="mitigation-1" class="level3">
       <h3>Mitigation</h3>
       <ul>
+        <li>Practice good key hygiene <!-- mention aws-vault, suggest IAM best practices --></li>
+        <li>Keep less sensitive data</li>
         <li>Encrypt all the things
           <ul>
             <li><a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices">TLS Deployment Best Practices</a> (Qualys SSL Labs), <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html">S3 Bucket Encryption</a>, <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.html">RDS Encryption</a></li>
           </ul></li>
-          <li>Practice good key hygiene <!-- mention aws-vault, suggest IAM best practices --></li>
-          <li>Keep less sensitive data</li>
       </ul>
     </section>
+
     <section id="xml-external-entities" class="level3">
       <h3>04: XML External Entities</h3>
       <pre><code>
@@ -167,6 +170,7 @@
         <li>Entity definitions can point to external resources via URL</li>
       </ul>
     </section>
+
     <section id="exploiting-xxe" class="level3">
       <h3>Exploiting XXE</h3>
       <pre><code>
@@ -194,17 +198,20 @@
         - `<!ENTITY xxe SYSTEM "expect://id" >`
       -->
     </section>
-    <section id="exploiting-xxe-1" class="level3">
-      <h3>Exploiting XXE</h3>
+
+    <section id="exploiting-xxe-1" class="level4">
+      <h4>Exploiting XXE</h4>
       <iframe src="{{ url('xxe') }}" class="stretch">
       </iframe>
     </section>
+
     <section id="in-the-wild-1" class="level3">
       <h3>In the Wild</h3>
       <ul>
         <li><a href="https://blog.detectify.com/2014/04/11/how-we-got-read-access-on-googles-production-servers/">Google XXE</a> ($10000 bounty)</li>
       </ul>
     </section>
+
     <section id="mitigation-2" class="level3">
       <h3>Mitigation</h3>
       <ul>
@@ -213,6 +220,7 @@
         <li>Read the docs for safe security configuration</li>
       </ul>
     </section>
+
     <section id="broken-access-control" class="level3">
       <h3>05: Broken Access Control</h3>
       <ul>
@@ -220,11 +228,13 @@
         <li>Often because authentication (authn) is enforced, but authorization (authz) is forgotten</li>
       </ul>
     </section>
-    <section id="example" class="level3">
-      <h3>Example</h3>
+
+    <section id="exploiting-broken-access-control" class="level4">
+      <h4>Exploiting Broken Access Control</h4>
       <iframe src="{{ url('profile') }}" class="stretch">
       </iframe>
     </section>
+
     <section id="security-misconfiguration" class="level3">
       <h3>06: Security Misconfiguration</h3>
       <ul>
@@ -254,6 +264,7 @@
         <li>Read the docs</li>
       </ul>
     </section>
+
     <section id="cross-site-scripting-xss" class="level3">
       <h3>07: Cross-Site Scripting (XSS)</h3>
       <ul>
@@ -266,6 +277,7 @@
           </ul></li>
       </ul>
     </section>
+
     <section id="varieties" class="level3">
       <h3>Varieties</h3>
       <ul>
@@ -275,33 +287,37 @@
         <li><strong>DOM</strong>: unsafe input from a request affects how the DOM behaves, but not what it contains</li>
       </ul>
     </section>
-      <section id="try-xss" class="center">
-        Try <a target="_blank" href="https://xss-game.appspot.com/level1">this</a>
-      </section>
+
+    <section id="try-xss" class="center">
+      Try <a target="_blank" href="https://xss-game.appspot.com/level1">this</a>
+    </section>
+
     <section id="mitigation-4" class="level3">
       <h3>Mitigation</h3>
       <ul>
-            <li>Don’t put user input into locations intended for the user agent
-              <ul>
-                <li>e.g. between <code>&lt;script&gt;</code> tags, in <code>&lt;style&gt;</code> tags, in comments, in tag attributes</li>
-              </ul></li>
-              <li>Escape user input that goes into locations intended for the user
-                <ul>
-                  <li>i.e. between tags that form the body</li>
-                </ul></li>
+        <li>Don’t put user input into locations intended for the user agent
+          <ul>
+            <li>e.g. between <code>&lt;script&gt;</code> tags, in <code>&lt;style&gt;</code> tags, in comments, in tag attributes</li>
+          </ul></li>
+          <li>Escape user input that goes into locations intended for the user
+            <ul>
+              <li>i.e. between tags that form the body</li>
+            </ul></li>
       </ul>
     </section>
+
     <section id="mitigation-contd" class="level3">
       <h3>Mitigation cont’d</h3>
       <ul>
         <li>Django’s built-in template engines escape HTML automatically
           <ul>
             <li>but those rules still apply</li>
-            <li>e.g., <code>&lt;div class={% raw %}{{ <span class="loud">user_input</span> }}{% endraw %}&gt;...</code> would still be vulnerable to <code>user_input=<span class="loud">"foo&nbsp;onmouseover=alert()"</span></code></li>
+            <li>e.g., <code>&lt;div class={% raw %}{{ <span class="danger">user_input</span> }}{% endraw %}&gt;...</code> would still be vulnerable to <code>user_input=<span class="danger">"foo&nbsp;onmouseover=alert()"</span></code></li>
           </ul></li>
           <!--<li>Be cautious when rendering HTML through more bespoke means</li>-->
       </ul>
     </section>
+
     <section id="insecure-deserialization" class="level3">
       <h3>08: Insecure Deserialization</h3>
       <ul>
@@ -316,6 +332,7 @@
           </ul></li>
       </ul>
     </section>
+
     <section id="insecure-deserialization-2" class="level3">
       <h3>Insecure Deserialization</h3>
       <iframe src="{{ url('restore-backup') }}" class="stretch">
@@ -323,10 +340,12 @@
       <!-- mitigation is just don't do it, so -->
       <!-- serialize to more primitive formats, like json (h...) -->
     </section>
+
     <section id="using-components-with-known-vulnerabilities" class="level3">
       <h3>09: Using Components With Known Vulnerabilities</h3>
       <!--<a href="https://www.wired.com/story/equifax-breach-no-excuse/">Equifax</a>-->
     </section>
+
     <section id="insufficient-logging-monitoring" class="level3">
       <h3>10: Insufficient Logging &amp; Monitoring</h3>
       <ul>
@@ -339,6 +358,7 @@
       </ul>
       <!-- TODO there should be a sort of TL;DR slide -->
     </section>
+
     <section id="end" class="level3">
       need a wrap up, need to consolidate references, few more functionality changes, proofread
     </section>
@@ -349,17 +369,37 @@
 <!-- <script src="{\{ STATIC_URL }}js/reveal.js"></script> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/js/reveal.min.js"></script>
 <script>
-  //  for (let li of document.getElementsByTagName("li")) {
-  //    li.classList.add("fragment");  // this is distracting
-  //  }
+  var addFragment = function(tags, ids, classes) {
+    for (let tag of tags) {
+      for (let el of document.getElementsByTagName(tag)) {
+        el.classList.add("fragment");  // this is distracting
+      }
+    }
 
-  Reveal.initialize({
-    transition: 'none',
-    history: true,
-    // center: false,
-    // only load external content for the current slide
-    // this is just for the iframes
-    viewDistance: 1,
-  });
+    for (let id of ids) {
+      document.getElementById(id).classList.add("fragment");
+    }
+
+    for (let cls of classes) {
+      for (let el of document.getElementsByClassName(cls)) {
+        el.classList.add("fragment");  // this is distracting
+      }
+    }
+  }
+
+addFragment(
+  ["ul", "pre"],
+  [],
+  []
+);
+
+Reveal.initialize({
+  transition: 'none',
+  history: true,
+  // center: false,
+  // only load external content for the current slide
+  // this is just for the iframes
+  viewDistance: 2,
+});
 </script>
 {% endblock %}

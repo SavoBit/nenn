@@ -2,10 +2,10 @@
 
 {% block body %}
   <ul>
-    <li><a class="no-dec" href="{{ url('shell-injection') }}">Command Injection</a></li>
-    <li><a class="no-dec" href="{{ url('profile') }}">SQLi, Broken Authentication, Broken Access Control, Insecure Object Deserialization</a></li>
+    <li><a href="{{ url('shell-injection') }}">Command Injection</a></li>
+    <li><a href="{{ url('profile') }}">SQLi</a>, Broken Authentication, Broken Access Control, Insecure Object Deserialization</li>
     <!--<li><a class="no-dec" href="{{ url('deserialize-user') }}">Insecure Deserialization</a></li>-->
-    <li><a class="no-dec" href="https://xss-game.appspot.com/" target="_blank">XXS (external)</a></li>
-    <li><a class="no-dec" href="{{ url('xxe') }}">XXE</a></li>
+    <li><a href="https://xss-game.appspot.com/" target="_blank">XXS (external)</a></li>
+    <li><a href="{{ url('xxe') }}">XXE</a></li>
   </ul>
 {% endblock %}
