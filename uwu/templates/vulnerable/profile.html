@@ -1,32 +1,42 @@
-{% extends "challenge.html" %}
+{% extends "base.html" %}
 
-{% block body %}
+{% block headerkludge %}
+<nav class="breadcrumb" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="{{ url('home') }}">Home</a></li>
+    <li><a href="{{ url('exercises') }}">Exercises</a></li>
+    <li class="is-active"><a href="#" aria-current="page">Um</a></li>
+  </ul>
+</nav>
+{% endblock %}
 
-{% if user and user.is_authenticated %}
-<h3>User Profile</h3>
-<pre><code>
-Username: {{ user.username }}
-Email:    {{ user.email }}
-Admin:    {{ user.is_superuser }}
-ID:       {{ user.id }}
+{% block content %}
+<div class="box">
+  <h3 class="title">User Profile</h3>
+  {% if user and user.is_authenticated %}
+  <pre><code>
+  Username: {{ user.username }}
+  Email:    {{ user.email }}
+  Admin:    {{ user.is_superuser }}
+  ID:       {{ user.id }}
 
 </pre></code>
 
-<fieldset>
-  <div class="flex-spread">
-    <div><a class="button" href="/profile/{{ user.username }}">Download Backup</a></div>
-    <div><a class="button" href="{{ url('restore-backup') }}">Restore Backup</a></div>
+<section class="section">
+  <div class="field is-grouped horizontal">
+    <div class="control">
+      <a class="button" href="/profile/{{ user.username }}">Download Backup</a>
+    </div>
+    <div class="control">
+      <a class="button" href="{{ url('restore-backup') }}">Restore Backup</a>
+    </div>
   </div>
-</fieldset>
+</section>
 
 {% else %}
-<div class="flex-spread flex-center">
-<div>
-<p>Please <a href="{{ url('login') }}">login</a> to see this page.</p>
-<!-- padding -->
-<div style="height: 6em;"></div>
-</div>
+<div class="section content">
+    <p>Please <a href="{{ url('login') }}">login</a> to see this page.</p>
 </div>
 {% endif %}
-
+</div>
 {% endblock %}

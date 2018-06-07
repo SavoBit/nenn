@@ -1,31 +1,57 @@
-{% extends "challenge.html" %}
+{% extends "syntax_highlight.html" %}
 
-{% block title %}XXE{% endblock %}
+{% block headerkludge %}
+<nav class="breadcrumb" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="{{ url('home') }}">Home</a></li>
+    <li><a href="{{ url('exercises') }}">Exercises</a></li>
+    <li class="is-active"><a href="#" aria-current="page">XML External Entities (XXE)</a></li>
+  </ul>
+</nav>
+{% endblock %}
 
-{% block body %}
-</p>
-<p>Here's a buggy XLSX file metadata viewer, and the source used to extract the XLSX
-author information. Can you exploit the handler to disclose secret files?
-</p>
-<fieldset>
-  <form class="flex-spread" action="{{ url('xlsx-info') }}" method="POST" enctype="multipart/form-data">
-    <input name="file" type="file" />
-    <input type="submit" value="Get Info" name="submit">
-    <!-- TODO class button here is semantically wrong -->
-    <div><a class="button" href="{{ STATIC_URL }}/files/timesheet.xlsx">example</a></div>
-    <div><a class="button" href="#just-kidding" title="just kidding">solution</a></div>
-    <!-- <div><a class="button" href="{{ STATIC_URL }}/files/timesheet-weaponized.xlsx">weaponized</a></div> -->
-    <!-- <div class="flex-item"><a class="button" href="{\{ url('hints/xxe.html') }}">weaponized</a></div> -->
+{% block content %}
+<div class="box">
+  <p class="content">Here's a buggy XLSX file metadata viewer, and the source used to extract the XLSX
+  author information. Can you exploit the handler to disclose secret files?</p>
+
+  <form class="box" action="{{ url('xlsx-info') }}" method="POST" enctype="multipart/form-data">
+    <div class="field is-grouped horizontal">
+      <div class="control file has-name">
+        <label class="file-label">
+          <input class="file-input" type="file" name="file">
+          <span class="file-cta">
+            <span class="file-icon">
+              <i class="fas fa-upload"></i>
+            </span>
+            <span class="file-label">
+              Choose a file…
+            </span>
+          </span>
+          <span class="file-name">
+            example.xlsx
+          </span>
+        </label>
+      </div>
+      <div class="control">
+        <button name="submit" class="button is-link">Submit</button>
+      </div>
+      <div class="control">
+        <a class="button" href="{{ STATIC_URL }}/files/timesheet.xlsx">example</a>
+      </div>
+      <div class="control">
+        <a class="button" href="#just-kidding" title="just kidding">solution</a>
+      </div>
+    </div>
   </form>
-</fieldset>
 
-<pre>
-    <code>
-import xml.sax
+  <pre><code>import xml.sax
 import zipfile
+
     .
     .
     .
+
 class XLSXWorkbookHandler(xml.sax.ContentHandler):
     def __init__(self, result_dict):
         self.res = result_dict
@@ -53,17 +79,17 @@ def xlsx_attributes(f):
     '''
     z = zipfile.ZipFile(f)
     props = {}
-        .
-        .
-        .
+
+      .
+      .
+      .
+
     with z.open('xl/workbook.xml') as f:
         xml.sax.parse(f, XLSXWorkbookHandler(props))
-    return props
-    </code>
-</pre>
-{% endblock %}
+    return props</code></pre>
 
-{% block extra_scripts %}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-  <script>hljs.initHighlightingOnLoad();</script>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
 {% endblock %}

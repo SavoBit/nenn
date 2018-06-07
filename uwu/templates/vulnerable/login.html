@@ -1,43 +1,43 @@
-{% extends "challenge.html" %}
-{% block header %}{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="flex-spread flex-center">
-  <div>
-    {% if form.errors %}
-    <p>Wrong creds.</p>
-    {% endif %}
+<div class="box">
+  {% if form.errors %}
+  <p>Wrong creds.</p>
+  {% endif %}
 
-    {% if next %}
-    {% if user and user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-    {% else %}
-    <p>Please login to see this page.</p>
-    {% endif %}
-    {% else %}
-    <p>Please enter your credentials.</p>
-    {% endif %}
+  {% if next %}
+  {% if user and user.is_authenticated %}
+  <p>Your account doesn't have access to this page. To proceed,
+  please login with an account that has access.</p>
+  {% else %}
+  <p>Please login to see this page.</p>
+  {% endif %}
+  {% else %}
+  <p>Please enter your credentials.</p>
+  {% endif %}
 
-    <!-- just user regular1:password1 in dev -->
-    <form method="post" action="{{ url('login') }}">
+  <!-- just user regular1:password1 in dev -->
+  <form method="post" action="{{ url('login') }}">
     {{ csrf_input }}
-    <table>
-    <tr>
-    <td>username</td>
-    <td>{{ form.username }}</td>
-    </tr>
-    <tr>
-    <td>password</td>
-    <td>{{ form.password }}</td>
-    </tr>
-    </table>
-
-    <input class="hidden-input" type="submit" value="login" />
+    <div class="field">
+      <label class="label">Username</label>
+      <div class="control">
+        {{ form.username }}
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Password</label>
+      <div class="control">
+        {{ form.password }}
+      </div>
+    </div>
+    <div class="field">
+      <div class="control">
+        <button name="submit" class="button is-link">Submit</button>
+      </div>
+    </div>
     <input type="hidden" name="next" value="{{ next }}" />
-    </form>
-    <!-- padding -->
-    <div style="height: 8em;"></div>
-  </div>
+  </form>
 </div>
 {% endblock %}

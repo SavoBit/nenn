@@ -1,3 +1,4 @@
+/*
 html, body {
   background: #4f688e;
   color: #e0ecff;
@@ -25,8 +26,8 @@ a:hover {
   color: #f4bf42;
 }
 
-ul {
-  /*list-style-type: none;*/
+ol li { 
+    list-style-type: decimal-leading-zero;
 }
 
 code {
@@ -85,6 +86,7 @@ pre code {
 .no-dec {
   text-decoration: none;
 }
+*/
 
 .danger {
   color: #faa;

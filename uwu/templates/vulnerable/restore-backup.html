@@ -1,21 +1,48 @@
-{% extends "challenge.html" %}
+{% extends "syntax_highlight.html" %}
 
-{% block body %}
+{% block headerkludge %}
+<nav class="breadcrumb" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="{{ url('home') }}">Home</a></li>
+    <li><a href="{{ url('exercises') }}">Exercises</a></li>
+    <li class="is-active"><a href="#" aria-current="page">Insecure Deserialization</a></li>
+  </ul>
+</nav>
+{% endblock %}
 
-<h3>Restore User Profile</h3>
+{% block content %}
+<div class="box">
+  <h3 class="title">Restore User Profile</h3>
 
-<p>Here's a vulnerable user data restore function, and the backing source.
-Can you exploit the h͠and̷le̡r̸ ţ̷̕o͝͏ ͜d̡͞o͘ c̸̶̯̱͉̈ͬ̌̓̓̏͠r͔̼͚̦̪ͧ̂ͪͮ̄ͧi͇̙̙̺̮̝̎͂̽ͥ̍͠ͅm̷̖̜̮͓̲͓̠̃̆̑ͩ̈̑͛͠ě͕̱͕̜͢s̛̱̬͓̤̦̞̽ͧ͋́̎̃̕
-</p>
+  <p class="content">Here's a vulnerable user data restore function, and the backing source.
+  Can you exploit the handler to run arbitrary code?
+  </p>
 
-<fieldset class="flex-spread">
-  <form class="flex-item flex-spread" action="{{ url('deserialize-user') }}" method="POST" enctype="multipart/form-data">
-    <input name="profile" type="file" />
-    <input type="submit" value="Restore" name="submit">
+  <form class="box" action="{{ url('deserialize-user') }}" method="POST" enctype="multipart/form-data">
+    <div class="field is-grouped">
+      <div class="control file has-name">
+        <label class="file-label">
+          <input class="file-input" type="file" name="profile">
+          <span class="file-cta">
+            <span class="file-icon">
+              <i class="fas fa-upload"></i>
+            </span>
+            <span class="file-label">
+              Choose a file…
+            </span>
+          </span>
+          <span class="file-name">
+            user.backup
+          </span>
+        </label>
+      </div>
+      <div class="control">
+        <button name="submit" class="button is-link">Restore</button>
+      </div>
+    </div>
   </form>
-</fieldset>
 
-<pre><code>
+  <pre><code>
 def deserialize_user(request):
     try:
         profile = request.FILES['profile'].read()
@@ -33,10 +60,6 @@ def deserialize_user(request):
 
     return render(request, 'vulnerable/profile.html', {'user': user})
 
-</code></pre>
-{% endblock %}
-
-{% block extra_scripts %}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-  <script>hljs.initHighlightingOnLoad();</script>
+  </code></pre>
+</div>
 {% endblock %}

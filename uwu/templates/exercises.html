@@ -1,11 +1,22 @@
-{% extends "challenge.html" %}
+{% extends "base.html" %}
 
-{% block body %}
-  <ul>
-    <li><a href="{{ url('shell-injection') }}">Command Injection</a></li>
-    <li><a href="{{ url('profile') }}">SQLi</a>, Broken Authentication, Broken Access Control, Insecure Object Deserialization</li>
-    <!--<li><a class="no-dec" href="{{ url('deserialize-user') }}">Insecure Deserialization</a></li>-->
-    <li><a href="https://xss-game.appspot.com/" target="_blank">XXS (external)</a></li>
-    <li><a href="{{ url('xxe') }}">XXE</a></li>
-  </ul>
+{% block header %}
+<h2 class="title"><a href="/">WebApp Security 101</a></h2>
+<h4 class="subtitle">Exploiting and Mitigating the OWASP Top 10</h4>
+<nav class="breadcrumb" aria-label="breadcrumbs">
+	<ul>
+		<li><a href="{{ url('home') }}">Home</a></li>
+		<li class="is-active"><a href="#" aria-current="page">Exercises</a></li>
+	</ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<ul>
+	<li><a href="{{ url('shell-injection') }}">Command Injection</a></li>
+	<li><a href="{{ url('profile') }}">SQLi</a>, Broken Authentication, Broken Access Control, Insecure Object Deserialization</li>
+	<!--<li><a class="no-dec" href="{{ url('deserialize-user') }}">Insecure Deserialization</a></li>-->
+	<li><a href="https://xss-game.appspot.com/" target="_blank">XXS (external)</a></li>
+	<li><a href="{{ url('xxe') }}">XXE</a></li>
+</ul>
 {% endblock %}
