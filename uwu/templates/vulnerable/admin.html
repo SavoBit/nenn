@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block headerkludge %}
+<nav class="breadcrumb" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="{{ url('home') }}">Home</a></li>
+    <li><a href="{{ url('exercises') }}">Exercises</a></li>
+    <li class="is-active"><a href="#" aria-current="page">SQL Injection</a></li>
+  </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<table class="table content">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Admin</th>
+      <th>ID</th>
+      <th>SSN</th>
+      <th>DOB</th>
+      <th>Phone</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+    <tr>
+      <td>
+        <div class="control is-narrow">
+          <a class="button is-danger is-outlined is-small" href="{{ url('profile') }}/backup/{{ user.id }}">Delete</a>
+        </div>
+      </td>
+      <td>{{ user.username }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.is_superuser }}</td>
+      <td>{{ user.id }}</td>
+      {% if user.employee %}
+      <td>{{ user.employee.ssn }}</td>
+      <td>{{ user.employee.date_of_birth }}</td>
+      <td>{{ user.employee.phone }}</td>
+      {% else %}
+      <td>unknown</td>
+      <td>unknown</td>
+      <td>unknown</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

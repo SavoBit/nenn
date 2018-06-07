@@ -7,12 +7,14 @@ import uwu.vulnerable.views as challenges
 
 
 urlpatterns = [
-    # TODO an index that links to exercises and slides separately
     url(r'^$', TemplateView.as_view(template_name='index.html'), name="home"),
     url(r'^slides/?$', TemplateView.as_view(template_name='slides.html'), name="slides"),
     url(r'^exercises/?$', TemplateView.as_view(template_name='exercises.html'), name="exercises"),
+    # if you're logged in, just redirect to your final destination. otherwise login
+    url(r'^login-check/?$', challenges.login_check, name="login-check"),
     url(r'^login/?$', LoginView.as_view(template_name='vulnerable/login.html'), name="login"),
     url(r'^logout/?$', LogoutView.as_view(template_name='index.html'), name="logout"),
+    url(r'^signup/$', challenges.signup, name='signup'),
 
     # Injection
     url(r'^shell-injection/?$',
@@ -30,6 +32,10 @@ urlpatterns = [
 
     # Broken Access Control,... a lot of things
     url(r'^profile/?$', challenges.profile, name='profile'),
+    url(r'^profile/(?P<userid>\d+)/?$', challenges.profile, name='serialize-user'),
+
+    # SQLi
+    url(r'^admin/?$', challenges.admin, name='admin'),
 
     # Sensitive Data Exposure
     # let's expose .git? or the exception one does this too, or really most of the others
@@ -54,7 +60,7 @@ urlpatterns = [
     url(r'^restore-backup/?$',
         TemplateView.as_view(template_name='vulnerable/restore-backup.html'),
         name='restore-backup'),
-    url(r'^profile/(?P<username>.*)/?$', challenges.serialize_user, name='serialize-user'),
+    url(r'^profile/backup/(?P<userid>\d+)/?$', challenges.serialize_user, name='serialize-user'),
     url(r'^deserialize/?$', challenges.deserialize_user, name='deserialize-user'),
 
     # more challenging phantomjs thing

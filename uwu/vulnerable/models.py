@@ -4,6 +4,8 @@ from django.db import models
 
 
 class Employee(models.Model):
+    # NOTE not fully implemented, and probably should be renamed
+    # to EmployeeProfile or something (since that's what it is)
     # so later you'd access employee info like this:
     # u = User.objects.get(foo)
     # u.employee.dob  # this makes another db query FYI
@@ -20,6 +22,10 @@ class Employee(models.Model):
         message='Phone number must be in the format +19999999999')
     phone = models.CharField(max_length=12, validators=[phone_regex])
 
+    @property
+    def date_of_birth(self):
+        return str(self.dob)
+
 
 class Workday(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
@@ -28,7 +34,7 @@ class Workday(models.Model):
 
 
 class Secret(models.Model):
-    '''"Secret" data for Employees'''
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    '''"Secret" data for Users'''
+    User = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField()
     value = models.CharField(max_length=256)

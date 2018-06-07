@@ -4,29 +4,73 @@ import pickle
 import subprocess
 
 from django.contrib import auth
+from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import PermissionDenied
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
+from .models import Employee
 from . import badxml
 
 
+# XXX unused
 def _render_string_with_jinja2(s, request=None, context=None):
     '''django.template.Template doesn't respect the BACKENDS settings
     but we want to use Jinja. I just really want to demonstrate template
     injection.
     '''
+    # see, this shoulda been flask so I wouldn't have to take these byantine measures
+    # to circumvent django's normal behavior
     from django.template import engines
     engines.all()  # this instantiates all the backends...
     return engines._engines['jinja2'].from_string(s).render(request=request, context=context)
 
 
-def profile(request):
-    return render(request, 'vulnerable/profile.html', {'user': request.user})
+@auth.decorators.login_required  # authn w/o authz edit: actually, I'm keeping authz here
+def profile(request, userid=None):
+    # super contrived
+    if not userid:
+        return redirect(reverse('profile') + '/' + str(request.user.id))
+    user = auth.models.User.objects.get(id=userid)
+    if request.user.id != user.id:
+        raise PermissionDenied
+    try:
+        employee = Employee.objects.get(user_id=userid)
+        print(employee)
+    except Employee.DoesNotExist:
+        employee = None
+    return render(request, 'vulnerable/profile.html', {'user': user, 'employee': employee})
 
 
-# Injection
+def login_check(request):
+    next = request.GET.get('next', '')
+    print(request.user)
+    if request.user.is_authenticated:
+        return redirect(next)
+    else:
+        return redirect(reverse('login') + '?next=' + next)
+
+
+def signup(request):
+    next = request.GET.get('next')
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = auth.authenticate(username=username, password=raw_password)
+            auth.login(request, user)
+            return redirect(next or 'home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'vulnerable/signup.html', {'form': form, 'next': next})
+
+
+# Command Injection
 @require_http_methods(['POST'])
 def injection1(request):
     '''A softball to get us started.'''
@@ -80,6 +124,24 @@ def injection3(request):
 
     result = codecs.decode(result, 'utf-8', 'backslashreplace')
     return render(request, 'vulnerable/shell-injection.html', {'result': result})
+
+
+# SQL Injection
+@auth.decorators.login_required
+def admin(request):
+    if not request.user.is_superuser:
+        return redirect(reverse('login') + '?next=' + reverse('admin'))
+    users = []
+    for u in auth.models.User.objects.all():
+        try:
+            e = Employee.objects.get(user_id=u.id)
+        except Employee.DoesNotExist:
+            e = None
+        u_dict = model_to_dict(u)
+        u_dict['employee'] = e
+        users.append(u_dict)
+    users.sort(key=lambda u: u['id'])
+    return render(request, 'vulnerable/admin.html', {'users': users})
 
 
 # Broken Authentication

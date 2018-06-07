@@ -5,38 +5,51 @@
   <ul>
     <li><a href="{{ url('home') }}">Home</a></li>
     <li><a href="{{ url('exercises') }}">Exercises</a></li>
-    <li class="is-active"><a href="#" aria-current="page">Um</a></li>
+    <li class="is-active"><a href="#" aria-current="page">Broken Access Control</a></li>
   </ul>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="box">
-  <h3 class="title">User Profile</h3>
-  {% if user and user.is_authenticated %}
-  <pre><code>
-  Username: {{ user.username }}
-  Email:    {{ user.email }}
-  Admin:    {{ user.is_superuser }}
-  ID:       {{ user.id }}
+<h3 class="title">User Profile</h3>
+{% if user and user.is_authenticated %}
+<div class="section box">
+<table class="table columns">
+  <tbody class="column is-narrow">
+    <tr><th>Username</th> <td>{{ user.username }}</td></tr>
+    <tr><th>Email</th>    <td>{{ user.email }}</td></tr>
+    <tr><th>Admin</th>    <td>{{ user.is_superuser }}</td></tr>
+    <tr><th>ID</th>       <td>{{ user.id }}</td></tr>
+  </tbody>
+  {% if employee %}
+  <tbody class="column is-narrow">
+    <tr><th>SSN</th>      <td>{{ employee.ssn }}</td></tr>
+    <tr><th>DOB</th>      <td>{{ employee.date_of_birth }}</td></tr>
+    <tr><th>Phone</th>    <td>{{ employee.phone }}</td></tr>
+  </tbody>
+  {% else %}
+  <tbody class="column is-narrow">
+    <tr><th>SSN</th>      <td></td></tr>
+    <tr><th>DOB</th>      <td></td></tr>
+    <tr><th>Phone</th>    <td></td></tr>
+  </tbody>
+  {% endif %}
+</table>
+</div>
 
-</pre></code>
-
-<section class="section">
-  <div class="field is-grouped horizontal">
-    <div class="control">
-      <a class="button" href="/profile/{{ user.username }}">Download Backup</a>
-    </div>
-    <div class="control">
-      <a class="button" href="{{ url('restore-backup') }}">Restore Backup</a>
+<div class="section">
+  <div class="field">
+    <div class="control is-narrow">
+      <!-- not possible to reverse match with regex paths or something -->
+      <a class="button" href="{{ url('profile') }}/backup/{{ user.id }}">Download Backup</a>
     </div>
   </div>
-</section>
+  <p class="content">I'd provide SLAs, but I just keep getting pwnd. Keep a backup.</p>
+</div>
 
 {% else %}
 <div class="section content">
-    <p>Please <a href="{{ url('login') }}">login</a> to see this page.</p>
+  <p>Please <a href="{{ url('login') }}">login</a> to see this page.</p>
 </div>
 {% endif %}
-</div>
 {% endblock %}
