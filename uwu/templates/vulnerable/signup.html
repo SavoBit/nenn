@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 class="subtitle">Sign up</h3>
+<form method="post" action="{{ url('signup') }}?next={{ next }}">
+  {{ csrf_input }}
+  {% for field in form %}
+  <p>
+  <div class="field">
+    <label class="label">{{ field.label_tag() }}</label>
+    <div class="control">
+      {{ field }}
+      <br>
+      {% if field.help_text %}
+      <small style="color: grey">{{ field.help_text }}</small>
+      {% endif %}
+    </div>
+  </div>
+  {% for error in field.errors %}
+  <p style="color: red">{{ error }}</p>
+  {% endfor %}
+  {% endfor %}
+  <button type="submit">Sign up</button>
+</form>
+{% endblock %}
