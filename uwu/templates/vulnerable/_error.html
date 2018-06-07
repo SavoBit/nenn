@@ -2,14 +2,12 @@
 
 {% block title %}Oops{% endblock %}
 {% block content %}
-<p>
-Well, that's an error:
-</p>
-<pre><code>
-{{ error }}
-
+<h3 class="title is-three">
+Well, that's an error
+</h3>
+<pre class="box section"><code>{{ error }}
 </code></pre>
-<p>
+<p class="content">
 <a href="{{ url(retry_name) }}">Try again.</a>
 </p>
 {% endblock %}
