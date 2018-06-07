@@ -11,45 +11,46 @@
 {% endblock %}
 
 {% block content %}
-<div class="box">
-  <h3 class="title">Restore User Profile</h3>
+<h3 class="title">Restore User Profile</h3>
 
-  <p class="content">Here's a vulnerable user data restore function, and the backing source.
-  Can you exploit the handler to run arbitrary code?
-  </p>
+<p class="content">
+There's quite a few bugs here.
+</p>
 
-  <form class="box" action="{{ url('deserialize-user') }}" method="POST" enctype="multipart/form-data">
-    <div class="field is-grouped">
-      <div class="control file has-name">
-        <label class="file-label">
-          <input class="file-input" type="file" name="profile">
-          <span class="file-cta">
-            <span class="file-icon">
-              <i class="fas fa-upload"></i>
-            </span>
-            <span class="file-label">
-              Choose a file…
-            </span>
+<form class="box" action="{{ url('deserialize-user') }}" method="POST" enctype="multipart/form-data">
+  <div class="field is-grouped column is-narrow">
+    <div class="control file has-name">
+      <label class="file-label">
+        <input class="file-input" type="file" name="profile" id="file">
+        <span class="file-cta">
+          <span class="file-icon">
+            <i class="fas fa-upload"></i>
           </span>
-          <span class="file-name">
-            user.backup
+          <span class="file-label">
+            Choose a file…
           </span>
-        </label>
-      </div>
-      <div class="control">
-        <button name="submit" class="button is-link">Restore</button>
-      </div>
+        </span>
+        <span class="file-name" id="filename">
+          No file chosen.
+        </span>
+      </label>
     </div>
-  </form>
+    <div class="control">
+      <button name="submit" class="button is-link">Restore</button>
+    </div>
+  </div>
+</form>
+<p class="content column">You can download a backup from your <a href="{{ url('profile') }}">profile</a>.</p>
 
-  <pre><code>
+<pre><code>
+@require_http_methods(['POST'])
 def deserialize_user(request):
     try:
         profile = request.FILES['profile'].read()
         data = pickle.loads(codecs.decode(profile, 'base64'))
         user = auth.models.User.objects.get(username=data['username'])
     except auth.models.User.DoesNotExist:
-        # Restore the backup
+        # Oops, lost the data lol
         user = auth.models.User.create(**data)
     except Exception as e:
         return render(
@@ -60,6 +61,11 @@ def deserialize_user(request):
 
     return render(request, 'vulnerable/profile.html', {'user': user})
 
-  </code></pre>
-</div>
+</code></pre>
+
+<script>
+  document.getElementById("file").onchange = function() {
+    document.getElementById("filename").innerText = this.value.split(/(\\|\/)/g).pop();
+  }
+</script>
 {% endblock %}
