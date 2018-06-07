@@ -1,0 +1,74 @@
+{% extends "syntax_highlight.html" %}
+
+{% block headerkludge %}
+<nav class="breadcrumb" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="{{ url('home') }}">Home</a></li>
+    <li><a href="{{ url('exercises') }}">Exercises</a></li>
+    <li class="is-active"><a href="#" aria-current="page">Command Injection</a></li>
+  </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container box">
+  <div class="tabs">
+    <ul>
+      <li><a href="{{ url('shell-injection') }}">No Protections</a></li>
+      <li class="is-active"><a href="#">Poor Protections</a></li>
+      <li><a href="{{ url('shell-injection3') }}">Better?</a></li>
+    </ul>
+  </div>
+
+  {% if result %}
+  <pre><code>{{ result }}</pre></code>
+  <p><a href="{{ url('shell-injection') }}">search another</a></p>
+
+  {% else %}
+  <div class="content">
+    <p>In this version, an attempt has been made to sanitize inputs by blacklisting
+    dangerous characters.</p>
+    <p>Can you still exploit it?</p>
+  </div>
+  <form action="{{ url('injection2') }}" method="POST">
+    <div class="field">
+      <div class="control">
+        <input name="host" class="input" type="text" placeholder="domain">
+      </div>
+    </div>
+    <div class="field">
+      <div class="control">
+        <button name="submit" class="button is-link">Submit</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="section">
+    <pre><code>
+@require_http_methods(['POST'])
+def injection2(request):
+    # remove unsafe characters!
+    blacklist = ['&', ';', '|']
+    host = request.POST.get('host')
+
+    if any(filter(lambda x: x in blacklist, host)):
+        result = b'Error! Some characters in your query are disallowed.\n'
+    else:
+        result = subprocess.run(
+            'whois ' + host,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=True
+        ).stdout
+
+    result = codecs.decode(result, 'utf-8', 'backslashreplace')
+    return render(request, 'vulnerable/shell-injection.html', {'result': result})
+  </pre></code>
+  </div>
+
+  {% endif %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+{% endblock %}

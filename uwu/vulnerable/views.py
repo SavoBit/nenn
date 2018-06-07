@@ -38,7 +38,7 @@ def injection1(request):
         shell=True
     ).stdout
 
-    result = codecs.decode(result, 'utf-8')  # can error if you're cheeky
+    result = codecs.decode(result, 'utf-8', 'backslashreplace')
     return render(request, 'vulnerable/shell-injection.html', {'result': result})
 
 
@@ -58,7 +58,27 @@ def injection2(request):
             shell=True
         ).stdout
 
-    result = codecs.decode(result, 'utf-8')  # can error if you're cheeky
+    result = codecs.decode(result, 'utf-8', 'backslashreplace')
+    return render(request, 'vulnerable/shell-injection.html', {'result': result})
+
+
+@require_http_methods(['POST'])
+def injection3(request):
+    '''
+    Tokenized! With direct invocation of the executable, not going through
+    bash. This would still be unsafe if, say, the attacker controlled the PATH.
+    '''
+    import shlex
+    host = request.POST.get('host')
+    cmd = 'whois ' + host
+
+    result = subprocess.run(
+        shlex.split(cmd),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    ).stdout
+
+    result = codecs.decode(result, 'utf-8', 'backslashreplace')
     return render(request, 'vulnerable/shell-injection.html', {'result': result})
 
 

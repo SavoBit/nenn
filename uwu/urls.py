@@ -18,8 +18,15 @@ urlpatterns = [
     url(r'^shell-injection/?$',
         TemplateView.as_view(template_name='vulnerable/shell-injection.html'),
         name='shell-injection'),
+    url(r'^shell-injection2/?$',
+        TemplateView.as_view(template_name='vulnerable/shell-injection2.html'),
+        name='shell-injection2'),
+    url(r'^shell-injection3/?$',
+        TemplateView.as_view(template_name='vulnerable/shell-injection3.html'),
+        name='shell-injection3'),
     url(r'^injection1/?$', challenges.injection1, name='injection1'),
     url(r'^injection2/?$', challenges.injection2, name='injection2'),
+    url(r'^injection3/?$', challenges.injection2, name='injection3'),
 
     # Broken Access Control,... a lot of things
     url(r'^profile/?$', challenges.profile, name='profile'),
