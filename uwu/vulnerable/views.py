@@ -203,28 +203,33 @@ def exception(request):
 
 # Insecure Deserialization, Broken Access Control, Broken Authn,...
 @require_http_methods(['GET'])
-@auth.decorators.login_required  # authn w/o authz
-def serialize_user(request, username=None):
+@auth.decorators.login_required  # authn w/o authz edit: actually, I'm keeping authz here
+def serialize_user(request, userid=0):
     '''Use this for combined broken auth, security misconfiguration,
     and insecure deserialization. Why not.
     '''
     try:
-        user = auth.models.User.objects.get(username=username)
+        user = auth.models.User.objects.get(id=userid)
+        if user.is_superuser:
+            raise PermissionDenied
         encoded = codecs.encode(pickle.dumps(model_to_dict(user), 0), 'base64')
-        return HttpResponse(encoded, content_type='application/octet-stream')
+        response = HttpResponse(encoded, content_type='application/octet-stream')
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(user.username)
+        return response
     except auth.models.User.DoesNotExist:
         return Http404()
 
 
 # Insecure Deserialization
 @require_http_methods(['POST'])
-@auth.decorators.login_required
 def deserialize_user(request):
     try:
-        data = pickle.loads(codecs.decode(request.FILES['profile'].read(), 'base64'))
+        profile = request.FILES['profile'].read()
+        data = pickle.loads(codecs.decode(profile, 'base64'))
         user = auth.models.User.objects.get(username=data['username'])
     except auth.models.User.DoesNotExist:
-        # User has valid backup but we lost their profile! How embarassing!
+        # Oops, lost the data lol
+        data.pop('id', None)  # don't wanna violate that unique id constraint
         user = auth.models.User.create(**data)
     except Exception as e:
         return render(
@@ -233,7 +238,8 @@ def deserialize_user(request):
             {'error': 'Something went wrong.', 'retry_name': 'profile'}
         )
 
-    return render(request, 'vulnerable/profile.html', {'user': user})
+    auth.login(request, user)
+    return redirect(reverse('profile'))
 
 
 # PhantomJS Examples
