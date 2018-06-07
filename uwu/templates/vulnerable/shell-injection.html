@@ -11,22 +11,21 @@
 {% endblock %}
 
 {% block content %}
-<div class="container box">
-  <div class="tabs">
-    <ul>
-      <li class="is-active"><a href="#">No Protections</a></li>
-      <li><a href="{{ url('shell-injection2') }}">Poor Protections</a></li>
-      <li><a href="{{ url('shell-injection3') }}">Better?</a></li>
-    </ul>
-  </div>
+<div class="tabs">
+  <ul>
+    <li class="is-active"><a href="#">No Protections</a></li>
+    <li><a href="{{ url('shell-injection2') }}">Poor Protections</a></li>
+    <li><a href="{{ url('shell-injection3') }}">Better?</a></li>
+  </ul>
+</div>
 
-  <div class="content">
-    <p>Here's a WHOIS service and the backing source. The output looks kind of familiar...</p>
-    <p>Can you exploit this service to run malicious code?</p>
-  </div>
+<div class="content">
+  <p>Here's a WHOIS service. The output looks kind of familiar...</p>
+  <p>Can you exploit this service to run malicious code?</p>
+</div>
 
-  {% if result %}
-  <pre><code>{{ result }}</pre></code>
+{% if result %}
+<pre><code>{{ result }}</pre></code>
   <p><a href="{{ url('shell-injection') }}">search another</a></p>
 
   {% else %}
@@ -60,8 +59,7 @@ def injection1(request):
   </div>
 
   {% endif %}
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-{% endblock %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  {% endblock %}

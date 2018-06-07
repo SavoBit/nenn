@@ -11,21 +11,20 @@
 {% endblock %}
 
 {% block content %}
-<div class="container box">
-  <div class="tabs">
-    <ul>
-      <li><a href="{{ url('shell-injection') }}">No Protections</a></li>
-      <li><a href="{{ url('shell-injection2') }}">Poor Protections</a></li>
-      <li class="is-active"><a href="#">Better?</a></li>
-    </ul>
-  </div>
+<div class="tabs">
+  <ul>
+    <li><a href="{{ url('shell-injection') }}">No Protections</a></li>
+    <li><a href="{{ url('shell-injection2') }}">Poor Protections</a></li>
+    <li class="is-active"><a href="#">Better?</a></li>
+  </ul>
+</div>
 
-  {% if result %}
-  <pre><code>{{ result }}</pre></code>
+{% if result %}
+<pre><code>{{ result }}</pre></code>
   <p><a href="{{ url('shell-injection') }}">search another</a></p>
 
   {% else %}
-  <p class="content">Hm. Can you still exploit this?</p>
+  <p class="content">Hm. Can you <i>still</i> exploit it?</p>
   <form action="{{ url('injection3') }}" method="POST">
     <div class="field">
       <div class="control">
@@ -59,8 +58,7 @@ def injection3(request):
   </div>
 
   {% endif %}
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-{% endblock %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  {% endblock %}

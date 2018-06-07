@@ -89,7 +89,7 @@ def injection1(request):
 @require_http_methods(['POST'])
 def injection2(request):
     '''A shoddy blacklisting attempt'''
-    blacklist = ['&', ';', '|']
+    blacklist = ['&', ';', '|', '$', '(', ')']
     host = request.POST.get('host')
 
     if any(filter(lambda x: x in blacklist, host)):
