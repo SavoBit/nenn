@@ -1,21 +1,16 @@
 {% extends "base.html" %}
 
-{% block header %}
-<h2 class="title"><a href="/">WebApp Security 101</a></h2>
-<h4 class="subtitle">Exploiting and Mitigating the OWASP Top 10</h4>
-{% endblock %}
-
 {% block content %}
-	<p>This is a Django app exposing (many) intentional vulnerabilities for use as
-	an educational security tool. It should not be deployed to internet-facing
-	servers, as they <i>will</i> be compromised.</p>
-	<p>Looks like nobody's defaced this instance quite yet, so let's get started.</p>
-	<ul>
-		<li>
-			<a href="{{ url('login') }}?next={{ url('slides') }}">View the slides</a>
-		</li>
-		<li>
-			<a href="{{ url('login') }}?next={{ url('exercises') }}">View the exercises</a>
-		</li>
-	</ul>
+<p>This is a Django app exposing (many) intentional vulnerabilities for use as
+an educational security tool. It should not be deployed to internet-facing
+servers, as they <i>will</i> be compromised.</p>
+<p>Looks like nobody's defaced this instance quite yet, so let's get started.</p>
+<ul>
+  <li>
+    <a href="{{ url('login-check') }}?next={{ url('slides') }}">View the slides</a>
+  </li>
+  <li>
+    <a href="{{ url('login-check') }}?next={{ url('exercises') }}">View the exercises</a>
+  </li>
+</ul>
 {% endblock %}
