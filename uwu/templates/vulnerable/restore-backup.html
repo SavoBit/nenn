@@ -5,42 +5,32 @@
   <ul>
     <li><a href="{{ url('home') }}">Home</a></li>
     <li><a href="{{ url('exercises') }}">Exercises</a></li>
-    <li class="is-active"><a href="#" aria-current="page">Insecure Deserialization</a></li>
+    <li class="is-active"><a href="#" aria-current="page">
+        {% block exercise_name %}Insecure Deserialization{% endblock %}</a></li>
   </ul>
 </nav>
 {% endblock %}
 
-{% block content %}
+{% block body %}
 <h3 class="title">Restore User Profile</h3>
 
 <p class="content">
 There's quite a few bugs here.
 </p>
 
-<form class="box" action="{{ url('deserialize-user') }}" method="POST" enctype="multipart/form-data">
-  <div class="field is-grouped column is-narrow">
-    <div class="control file has-name">
-      <label class="file-label">
-        <input class="file-input" type="file" name="profile" id="file">
-        <span class="file-cta">
-          <span class="file-icon">
-            <i class="fas fa-upload"></i>
-          </span>
-          <span class="file-label">
-            Choose a file…
-          </span>
-        </span>
-        <span class="file-name" id="filename">
-          No file chosen.
-        </span>
-      </label>
+<form class="box" action="{{ url('deserialize-user') }}" method="POST">
+  <div class="field">
+    <div class="control">
+      <textarea class="textarea" placeholder="Paste your backup here" rows="6" name="profile"></textarea>
     </div>
+  </div>
+  <div class="field">
     <div class="control">
       <button name="submit" class="button is-link">Restore</button>
     </div>
   </div>
 </form>
-<p class="content column">You can download a backup from your <a href="{{ url('profile') }}">profile</a>.</p>
+<p class="content">You can download a backup from your <a href="{{ url('profile') }}">profile</a>.</p>
 
 <pre><code>
 @require_http_methods(['POST'])
@@ -51,7 +41,8 @@ def deserialize_user(request):
         user = auth.models.User.objects.get(username=data['username'])
     except auth.models.User.DoesNotExist:
         # Oops, lost the data lol
-        user = auth.models.User.create(**data)
+        # something like this happens, but not really
+        user = auth.models.User.objects.create(**data)
     except Exception as e:
         return render(
             request,
@@ -68,4 +59,27 @@ def deserialize_user(request):
     document.getElementById("filename").innerText = this.value.split(/(\\|\/)/g).pop();
   }
 </script>
+{% endblock %}
+
+{% block help %}
+<p>If you're here doing the Broken Access Control exercise, this help is not for you ;)</p>
+
+<p>Insecure Deserialization occurs when applications deserialize user-controlled content
+without first verifying its integrity. Discovering such a vulnerability is usually difficult,
+but successful exploitation is very dangerous.</p>
+
+<h4 class="subtitle">Exploitation</h4>
+<p>An attacker could send a maliciously crafted, serialized object</p>
+<p>For example, you might attempt to navigate to a profile other than yours to view
+private information, or access admin functionality by changing a claim in a session
+cookie (don't put claims in cookies! And sign them if you must).</p>
+<h4 class="subtitle">Mitigation</h4>
+<p>Mitigation requires consistent, enforced checking of client permissions.
+Understand that such checks must happen <i>server-side</i>&mdash;user claims should
+never be trusted on face value!</p>
+<p>Consider centralizing your authentication and authorization checks, and consolidating
+application entrypoints to ensure that all requests go through adequate access control
+checks</p>
+
+<p>For further information, consult the <a target="_blank" href="https://www.owasp.org/index.php/Broken_Access_Control">OWASP Broken Access Control wiki</a>.
 {% endblock %}

@@ -5,34 +5,36 @@
   <ul>
     <li><a href="{{ url('home') }}">Home</a></li>
     <li><a href="{{ url('exercises') }}">Exercises</a></li>
-    <li class="is-active"><a href="#" aria-current="page">Command Injection</a></li>
+    <li class="is-active"><a href="#" aria-current="page">{% block exercise_name %}Command Injection{% endblock %}</a></li>
   </ul>
 </nav>
 {% endblock %}
 
-{% block content %}
-<div class="tabs">
-  <ul>
-    <li class="is-active"><a href="#">No Protections</a></li>
-    <li><a href="{{ url('shell-injection2') }}">Poor Protections</a></li>
-    <li><a href="{{ url('shell-injection3') }}">Better?</a></li>
-  </ul>
-</div>
-
-<div class="content">
-  <p>Here's a WHOIS service. The output looks kind of familiar...</p>
-  <p>Can you exploit this service to run malicious code?</p>
-</div>
-
+{% block body %}
 {% if result %}
-<pre><code>{{ result }}</pre></code>
-  <p><a href="{{ url('shell-injection') }}">search another</a></p>
+<p class="content"><a href="{{ url('shell-injection') }}">Search another</a></p>
+<h3 class="subtitle">Output of <code>{{ cmd }}</code></h3>
 
+<pre><code>{{ result }}</pre></code>
   {% else %}
+  <div class="tabs">
+    <ul>
+      <li class="is-active"><a href="#">No Protections</a></li>
+      <li><a href="{{ url('shell-injection2') }}">Some Protections</a></li>
+      <li><a href="{{ url('shell-injection3') }}">Secure?</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <p>Here's a WHOIS service. The output looks kind of familiar...</p>
+    <p>For all injection exercises, your goal is to discover the contents of the file <code>/secret.txt</code>.</p>
+    <p>Can you exploit this service to disclose secret files?</p>
+  </div>
+
   <form action="{{ url('injection1') }}" method="POST">
     <div class="field">
       <div class="control">
-        <input name="host" class="input" type="text" placeholder="domain">
+        <input name="domain" class="input" type="text" placeholder="domain">
       </div>
     </div>
     <div class="field">
@@ -44,22 +46,78 @@
 
   <div class="section">
     <pre><code>
-@require_http_methods(['POST'])
 def injection1(request):
-    host = request.POST.get('host')
+    host = request.POST.get('domain')
+    cmd = 'whois ' + host
+
     result = subprocess.run(
-        'whois ' + host,
+        cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         shell=True
     ).stdout
 
-    return render(request, 'vulnerable/shell-injection.html', {'result': result})
+    result = codecs.decode(result, 'utf-8', 'backslashreplace')
+    return render(request, 'vulnerable/shell-injection.html', {'result': result, 'cmd': cmd})
   </pre></code>
   </div>
 
-  {% endif %}
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
+  {% endif %}
+  {% endblock %}
+
+  {% block help %}
+  <p>
+  A Command Injection vulnerability occurs when an application passes user input
+  directly to a shell.  </p>
+  <h4 class="subtitle">Exploitation</h4>
+  <p>An attacker can exploit this by simply inputting their own shell commands.
+  For example, to disclose <code>/secret.txt</code>, you might try to input
+  <code>cat /secret.txt</code> and see what happens. If the application is coded
+  insecurely, you may gain access to secret information!
+  </p>
+  <p>Some application developers attempt to mitigate injection by prohibiting
+  dangerous inputs (like shell metacharacters) using a blacklisting filter.
+
+  However, such measures often fail to exhaustively prohibit <i>all</i> malicious
+  inputs.
+  </p>
+  <h4 class="subtitle">Mitigation</h4>
+  <p>
+  The simplest form of prevention is to simply avoid using shell commands based on user
+  input. Where this is impossible, execute your commands using a safe API rather than by
+  invoking a shell.
+  </p>
+  <p>For example, in Python, our example could be more safely rewritten like this:</p>
+  <pre class="box"><code>
+def whois(request):
+    '''
+    Tokenize! Then invoke the executable directly without going through a shell.
+    Everything in the command string is split up and passed as args to whois, rather
+    then being interpreted by /bin/sh first.
+    This is a much safer way to invoke external commands.
+    '''
+    import shlex
+    host = request.POST.get('domain')
+    # Note the full executable path. If an attacker could somehow write files into
+    # directories in your PATH, invoking 'whois' on its own would still be dangerous
+    cmd = '/usr/bin/whois ' + host
+
+    result = subprocess.run(
+        shlex.split(cmd),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    ).stdout
+
+    result = codecs.decode(result, 'utf-8', 'backslashreplace')
+    return render(request, 'vulnerable/shell-injection.html', {'result': result})
+  </pre></code>
+  <p>
+  Keep in mind that <i>any</i> data flowing into your application
+  is a form of input, and any source of data can be an injection point. That includes not
+  only request parameters, but also URLs, request headers, environment variables, your
+  redis cache... the list goes on. When in doubt, all input should be treated as malicious
+  and should be appropriately sanitized before use!
+  </p>
   {% endblock %}

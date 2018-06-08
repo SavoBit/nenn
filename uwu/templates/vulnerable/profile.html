@@ -1,50 +1,52 @@
-{% extends "base.html" %}
+{% extends "syntax_highlight.html" %}
 
 {% block headerkludge %}
 <nav class="breadcrumb" aria-label="breadcrumbs">
   <ul>
     <li><a href="{{ url('home') }}">Home</a></li>
     <li><a href="{{ url('exercises') }}">Exercises</a></li>
-    <li class="is-active"><a href="#" aria-current="page">Broken Access Control</a></li>
+    <li class="is-active"><a href="#" aria-current="page">{% block exercise_name %}Broken Access Control{% endblock %}</a></li>
   </ul>
 </nav>
 {% endblock %}
 
-{% block content %}
+{% block body %}
 <h3 class="title">User Profile</h3>
+<p class="content">From this view, your goal as an attacker is to access private information about other users.</p>
 {% if user and user.is_authenticated %}
 <div class="section box">
-<table class="table columns">
-  <tbody class="column is-narrow">
-    <tr><th>Username</th> <td>{{ user.username }}</td></tr>
-    <tr><th>Email</th>    <td>{{ user.email }}</td></tr>
-    <tr><th>Admin</th>    <td>{{ user.is_superuser }}</td></tr>
-    <tr><th>ID</th>       <td>{{ user.id }}</td></tr>
-  </tbody>
-  {% if employee %}
-  <tbody class="column is-narrow">
-    <tr><th>SSN</th>      <td>{{ employee.ssn }}</td></tr>
-    <tr><th>DOB</th>      <td>{{ employee.date_of_birth }}</td></tr>
-    <tr><th>Phone</th>    <td>{{ employee.phone }}</td></tr>
-  </tbody>
-  {% else %}
-  <tbody class="column is-narrow">
-    <tr><th>SSN</th>      <td></td></tr>
-    <tr><th>DOB</th>      <td></td></tr>
-    <tr><th>Phone</th>    <td></td></tr>
-  </tbody>
-  {% endif %}
-</table>
+  <table class="table columns">
+    <tbody class="column is-narrow">
+      <tr><th>Username</th> <td>{{ user.username }}</td></tr>
+      <tr><th>Email</th>    <td>{{ user.email }}</td></tr>
+      <tr><th>Admin</th>    <td>{{ user.is_superuser }}</td></tr>
+      <tr><th>ID</th>       <td>{{ user.id }}</td></tr>
+      {% if user.secret %}
+      <tr><th>ID</th>       <td>{{ user.secret }}</td></tr>
+      {% endif %}
+      {% if employee %}
+      <tr><th>SSN</th>      <td>{{ employee.ssn }}</td></tr>
+      <tr><th>DOB</th>      <td>{{ employee.date_of_birth }}</td></tr>
+      <tr><th>Phone</th>    <td>{{ employee.phone }}</td></tr>
+      {% else %}
+      <tr><th>SSN</th>      <td></td></tr>
+      <tr><th>DOB</th>      <td></td></tr>
+      <tr><th>Phone</th>    <td></td></tr>
+      {% endif %}
+    </tbody>
+  </table>
 </div>
 
 <div class="section">
-  <div class="field">
+  <div class="field is-grouped horizontal">
     <div class="control is-narrow">
       <!-- not possible to reverse match with regex paths or something -->
-      <a class="button" href="{{ url('profile') }}/backup/{{ user.id }}">Download Backup</a>
+      <a class="button" href="{{ url('profile') }}/backup?id={{ user.id }}">Download Backup</a>
+    </div>
+    <div class="control is-narrow">
+      <a class="button" href="{{ url('restore-backup') }}">Restore Backup</a>
     </div>
   </div>
-  <p class="content">I'd provide SLAs, but I just keep getting pwnd. Keep a backup.</p>
 </div>
 
 {% else %}
@@ -52,4 +54,27 @@
   <p>Please <a href="{{ url('login') }}">login</a> to see this page.</p>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block help %}
+<p>Broken Access Control refers to all manner of insufficient permissions
+checking. It often occurs when <i>authentication</i> is enforced, but <i>authorization</i>
+is forgotten. Bypassing access control is a fundamental skill of any attacker.</p>
+<h4 class="subtitle">Exploitation</h4>
+<p>Exploitation may include changing URL segments or parameters, tampering
+with metadata, and otherwise attempting to access data or functionality that
+should not be available. Basically, changing stuff and seeing what happens ;)
+</p>
+<p>For example, you might attempt to navigate to a profile other than yours to view
+private information, or access admin functionality by changing a claim in a session
+cookie (don't put claims in cookies! And sign them if you must).</p>
+<h4 class="subtitle">Mitigation</h4>
+<p>Mitigation requires consistent, enforced checking of client permissions.
+Understand that such checks must happen <i>server-side</i>&mdash;user claims should
+never be trusted on face value!</p>
+<p>Consider centralizing your authentication and authorization checks, and consolidating
+application entrypoints to ensure that all requests go through adequate access control
+checks</p>
+
+<p>For further information, consult the <a target="_blank" href="https://www.owasp.org/index.php/Broken_Access_Control">OWASP Broken Access Control wiki</a>.
 {% endblock %}

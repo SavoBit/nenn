@@ -34,16 +34,16 @@
       </td>
       <td>{{ user.username }}</td>
       <td>{{ user.email }}</td>
-      <td>{{ user.is_superuser }}</td>
+      <td>{% if user.is_superuser %}<span style="font-weight:bold;color:red;">Yes</span>{% else %}No{% endif %}</td>
       <td>{{ user.id }}</td>
       {% if user.employee %}
       <td>{{ user.employee.ssn }}</td>
       <td>{{ user.employee.date_of_birth }}</td>
       <td>{{ user.employee.phone }}</td>
       {% else %}
-      <td>unknown</td>
-      <td>unknown</td>
-      <td>unknown</td>
+      <td></td>
+      <td></td>
+      <td></td>
       {% endif %}
     </tr>
     {% endfor %}

@@ -1,22 +1,28 @@
-{% extends "base.html" %}
+{% extends "syntax_highlight.html" %}
 
 {% block content %}
-  {% if form.errors %}
-  <p>Wrong creds.</p>
-  {% endif %}
-
   <div class="content">
-  {% if next %}
+  {% if "admin" in next %}
+  <h3 class="title">Admin View</h3>
   {% if request.user.is_authenticated %}
   <p>Your account doesn't have access to this page. To proceed,
   please login with an account that has access.</p>
   {% else %}
+  <script>
+    // more hax lol
+    var el = document.getElementById('helpButton')
+    el.parentNode.removeChild(el)
+  </script>
   <p>Please login to see this page.</p>
   {% endif %}
   {% else %}
   <p>Please enter your credentials.</p>
   {% endif %}
   </div>
+
+  {% if form.errors %}
+  <p>Wrong creds.</p>
+  {% endif %}
 
   <!-- just user regular1:password1 in dev -->
   <form method="post" action="{{ url('login') }}">
@@ -39,6 +45,8 @@
       </div>
     </div>
     <input type="hidden" name="next" value="{{ next }}" />
+    {% if not request.user.is_authenticated %}
     <p class="content">Need an account? Sign up <a href="{{ url('signup') }}?next={{ next }}">here</a>.</p>
+    {% endif %}
   </form>
 {% endblock %}

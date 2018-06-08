@@ -5,30 +5,30 @@
   <ul>
     <li><a href="{{ url('home') }}">Home</a></li>
     <li><a href="{{ url('exercises') }}">Exercises</a></li>
-    <li class="is-active"><a href="#" aria-current="page">Command Injection</a></li>
+    <li class="is-active"><a href="#" aria-current="page">{% block exercise_name %}Command Injection{% endblock %}</a></li>
   </ul>
 </nav>
 {% endblock %}
 
-{% block content %}
-<div class="tabs">
-  <ul>
-    <li><a href="{{ url('shell-injection') }}">No Protections</a></li>
-    <li><a href="{{ url('shell-injection2') }}">Poor Protections</a></li>
-    <li class="is-active"><a href="#">Better?</a></li>
-  </ul>
-</div>
-
+{% block body %}
 {% if result %}
 <pre><code>{{ result }}</pre></code>
-  <p><a href="{{ url('shell-injection') }}">search another</a></p>
+  <p class="content"><a href="{{ url('shell-injection3') }}">search another</a></p>
 
   {% else %}
+  <div class="tabs">
+    <ul>
+      <li><a href="{{ url('shell-injection') }}">No Protections</a></li>
+      <li><a href="{{ url('shell-injection2') }}">Some Protections</a></li>
+      <li class="is-active"><a href="#">Secure?</a></li>
+    </ul>
+  </div>
+
   <p class="content">Hm. Can you <i>still</i> exploit it?</p>
   <form action="{{ url('injection3') }}" method="POST">
     <div class="field">
       <div class="control">
-        <input name="host" class="input" type="text" placeholder="domain">
+        <input name="domain" class="input" type="text" placeholder="domain">
       </div>
     </div>
     <div class="field">
@@ -40,25 +40,35 @@
 
   <div class="section">
     <pre><code>
-@require_http_methods(['POST'])
 def injection3(request):
-    import shlex
-    host = request.POST.get('host')
+    '''Let's see you inject /bin/cat now!'''
+    blacklist = ['cat', 'secret.txt']
+    host = request.POST.get('domain')
     cmd = 'whois ' + host
 
-    result = subprocess.run(
-        shlex.split(cmd),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-    ).stdout
+    if any(filter(lambda x: x in host.lower(), blacklist)):
+        result = b'Aha! No cats allowed!\n'
+    else:
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=True
+        ).stdout
 
     result = codecs.decode(result, 'utf-8', 'backslashreplace')
-    return render(request, 'vulnerable/shell-injection.html', {'result': result})
+    return render(request, 'vulnerable/shell-injection3.html', {'result': result, 'cmd': cmd})
   </pre></code>
   </div>
 
-  {% endif %}
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
+  {% endif %}
+  {% endblock %}
+
+  {% block help %}
+  <p>
+  Just to be sure, you can always just inject commands other than <code>cat</code>.
+  But that would be cheating! Find another solution and let me know how you did it.
+  </p>
   {% endblock %}

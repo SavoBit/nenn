@@ -5,25 +5,25 @@
   <ul>
     <li><a href="{{ url('home') }}">Home</a></li>
     <li><a href="{{ url('exercises') }}">Exercises</a></li>
-    <li class="is-active"><a href="#" aria-current="page">Command Injection</a></li>
+    <li class="is-active"><a href="#" aria-current="page">{% block exercise_name %}Command Injection{% endblock %}</a></li>
   </ul>
 </nav>
 {% endblock %}
 
-{% block content %}
-<div class="tabs">
-  <ul>
-    <li><a href="{{ url('shell-injection') }}">No Protections</a></li>
-    <li class="is-active"><a href="#">Poor Protections</a></li>
-    <li><a href="{{ url('shell-injection3') }}">Better?</a></li>
-  </ul>
-</div>
-
+{% block body %}
 {% if result %}
+<p class="content"><a href="{{ url('shell-injection2') }}">Search another</a></p>
+<h3 class="subtitle">Output of <code>{{ cmd }}</code></h3>
 <pre><code>{{ result }}</pre></code>
-  <p><a href="{{ url('shell-injection') }}">search another</a></p>
-
   {% else %}
+  <div class="tabs">
+    <ul>
+      <li><a href="{{ url('shell-injection') }}">No Protections</a></li>
+      <li class="is-active"><a href="#">Some Protections</a></li>
+      <li><a href="{{ url('shell-injection3') }}">Secure?</a></li>
+    </ul>
+  </div>
+
   <div class="content">
     <p>In this version, an attempt has been made to sanitize inputs by blacklisting
     dangerous characters.</p>
@@ -32,7 +32,7 @@
   <form action="{{ url('injection2') }}" method="POST">
     <div class="field">
       <div class="control">
-        <input name="host" class="input" type="text" placeholder="domain">
+        <input name="domain" class="input" type="text" placeholder="domain">
       </div>
     </div>
     <div class="field">
@@ -44,28 +44,34 @@
 
   <div class="section">
     <pre><code>
-@require_http_methods(['POST'])
 def injection2(request):
     blacklist = ['&amp;', ';', '|', '$', '(', ')']
-    host = request.POST.get('host')
+    host = request.POST.get('domain')
+    cmd = 'whois ' + host
 
-    if any(filter(lambda x: x in blacklist, host)):
+    if any(filter(lambda x: x in blacklist, cmd)):
         result = b'Error! Some characters in your query are disallowed.\n'
     else:
         result = subprocess.run(
-            'whois ' + host,
+            cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             shell=True
         ).stdout
 
     result = codecs.decode(result, 'utf-8', 'backslashreplace')
-    return render(request, 'vulnerable/shell-injection.html', {'result': result})
+    return render(request, 'vulnerable/shell-injection2.html', {'result': result, 'cmd': cmd})
   </pre></code>
   </div>
 
-  {% endif %}
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
+  {% endif %}
+  {% endblock %}
+
+  {% block help %}
+  <p>
+  Here's an example where our developer has attempted to blacklist shell metacharacters
+  to prevent us from chaining our own commands. He's even prevented <code>$()</code> command substitution.
+  Good thinking! But not really&mdash;he seems to have forgotten something else...
   {% endblock %}

@@ -1,21 +1,31 @@
-{% extends "challenge.html" %}
+{% extends "base.html" %}
 
-{% block title %}XLSX Info{% endblock %}
+{% block headerkludge %}
+<nav class="breadcrumb" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="{{ url('home') }}">Home</a></li>
+    <li><a href="{{ url('exercises') }}">Exercises</a></li>
+    <li class="is-active"><a href="#" aria-current="page">XML External Entities (XXE)</a></li>
+  </ul>
+</nav>
+{% endblock %}
+
 {% block content %}
-<p>
-Here's the metadata for your file:
-</p>
-<p>
-<pre><code>
-  name: {{ name }}
-  creator: {{ creator }}
-  created: {{ created }}
-  modified: {{ modified }}
-  lastModifiedBy: {{ lastModifiedBy }}
+<h3 class="title">XLSX Info</h3>
+<p class="content">Here's the metadata for your file:</p>
 
-</pre></code>
+<div class="section box">
+  <table class="table columns">
+    <tbody class="column is-narrow">
+      <tr><th>Name</th>              <td>{{ name }}</td></tr>
+      <tr><th>Creator</th>           <td>{{ creator }}</td></tr>
+      <tr><th>Modified</th>          <td>{{ modified }}</td></tr>
+      <tr><th>Last Modified By</th>  <td>{{ lastModifiedBy }}</td></tr>
+    </tbody>
+  </table>
+</div>
 
-<p>
+<p class="content">
 <a href="{{ url('xxe') }}">Try another.</a>
 </p>
 {% endblock %}

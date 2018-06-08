@@ -5,12 +5,15 @@
   <ul>
     <li><a href="{{ url('home') }}">Home</a></li>
     <li><a href="{{ url('exercises') }}">Exercises</a></li>
-    <li class="is-active"><a href="#" aria-current="page">XML External Entities (XXE)</a></li>
+    <li class="is-active"><a href="#" aria-current="page">{% block exercise_name %}XML External Entities (XXE){% endblock %}</a></li>
   </ul>
 </nav>
 {% endblock %}
 
-{% block content %}
+{% block help %}
+{% endblock %}
+
+{% block body %}
   <p class="content">Here's a buggy XLSX file metadata viewer, and the source used to extract the XLSX
   author information. Can you exploit the handler to disclose secret files?</p>
 
@@ -18,7 +21,7 @@
     <div class="field is-grouped horizontal">
       <div class="control file has-name">
         <label class="file-label">
-          <input class="file-input" type="file" name="file">
+          <input class="file-input" type="file" name="file" id="file">
           <span class="file-cta">
             <span class="file-icon">
               <i class="fas fa-upload"></i>
@@ -27,8 +30,8 @@
               Choose a file…
             </span>
           </span>
-          <span class="file-name">
-            example.xlsx
+          <span class="file-name" id="filename">
+            No file chosen
           </span>
         </label>
       </div>
@@ -89,4 +92,14 @@ def xlsx_attributes(f):
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
+<script>
+  document.getElementById("file").onchange = function() {
+    document.getElementById("filename").innerText = this.value.split(/(\\|\/)/g).pop();
+  }
+</script>
+
+{% endblock %}
+
+{% block help %}
+
 {% endblock %}
