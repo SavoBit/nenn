@@ -16,6 +16,14 @@ from .models import Employee
 from . import badxml
 
 
+def _flag_hack(flag, dir='.'):
+    # TODO remove this soon ;(  8 Jun 18
+    import os
+    secret = 'secret.txt{' + flag + '}'
+    with open(os.path.join(dir, 'secret.txt'), 'w') as f:
+        f.write(secret)
+
+
 # XXX unused
 def _render_string_with_jinja2(s, request=None, context=None):
     '''django.template.Template doesn't respect the BACKENDS settings
@@ -75,46 +83,74 @@ def signup(request):
 @require_http_methods(['POST'])
 def injection1(request):
     '''A softball to get us started.'''
-    host = request.POST.get('host')
+    _flag_hack('bec83aa6d4e830802192bacde5554591')
+    host = request.POST.get('domain')
+    cmd = 'whois ' + host
+
     result = subprocess.run(
-        'whois ' + host,
+        cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         shell=True
     ).stdout
 
     result = codecs.decode(result, 'utf-8', 'backslashreplace')
-    return render(request, 'vulnerable/shell-injection.html', {'result': result})
+    return render(request, 'vulnerable/shell-injection.html', {'result': result, 'cmd': cmd})
 
 
 @require_http_methods(['POST'])
 def injection2(request):
     '''A shoddy blacklisting attempt'''
+    _flag_hack('4fcdbd8e252069fecec41fc70f7f337e')
     blacklist = ['&', ';', '|', '$', '(', ')']
-    host = request.POST.get('host')
+    host = request.POST.get('domain')
+    cmd = 'whois ' + host
 
-    if any(filter(lambda x: x in blacklist, host)):
+    if any(filter(lambda x: x in blacklist, cmd)):
         result = b'Error! Some characters in your query are disallowed.\n'
     else:
         result = subprocess.run(
-            'whois ' + host,
+            cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             shell=True
         ).stdout
 
     result = codecs.decode(result, 'utf-8', 'backslashreplace')
-    return render(request, 'vulnerable/shell-injection.html', {'result': result})
+    return render(request, 'vulnerable/shell-injection2.html', {'result': result, 'cmd': cmd})
 
 
 @require_http_methods(['POST'])
 def injection3(request):
+    '''Let's see you inject /bin/cat now!'''
+    _flag_hack('1e0bd79de326aec57a91057da034c295')
+
+    blacklist = ['cat', 'secret']
+    host = request.POST.get('domain')
+    cmd = 'whois ' + host
+
+    if any(filter(lambda x: x in host.lower(), blacklist)):
+        result = b'Aha! No cats allowed!\n'
+    else:
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=True
+        ).stdout
+
+    result = codecs.decode(result, 'utf-8', 'backslashreplace')
+    return render(request, 'vulnerable/shell-injection3.html', {'result': result, 'cmd': cmd})
+
+
+@require_http_methods(['POST'])
+def injection4(request):
     '''
     Tokenized! With direct invocation of the executable, not going through
-    bash. This would still be unsafe if, say, the attacker controlled the PATH.
+    a shell. This should actually be safe, if the attacker controls only this input.
     '''
     import shlex
-    host = request.POST.get('host')
+    host = request.POST.get('domain')
     cmd = 'whois ' + host
 
     result = subprocess.run(
@@ -145,25 +181,10 @@ def admin(request):
     return render(request, 'vulnerable/admin.html', {'users': users})
 
 
-# Broken Authentication
-# | there's not a good way to demonstrate this one, probably?
-# | maybe go with the cookie idea, but i'm not sure this is all that easy to
-# | demonstrate
-# | Or just use the slides as an authentication bypass example lol
-# | passwords aren't hashed so there you go
-
-
-# Sensitive Data Exposure TODO
-# | there's a lot of ways to go with this; most of the interesting exercises
-# | in this app already disclose data, so this may not need its own example
-
-
 # XXE
-# TODO django can serialize models to xml so maybe replace this with a custom
-# xml deserializer. make the examples more cohesive and easier to demonstrate
-# wait yeah lol, if you just deserialize xml for the backup loader...
 @require_http_methods(['POST'])
 def xxe(request):
+    _flag_hack('6b08358ba7b88b7c15da09eb8d5511db', '/')  # make it easier
     try:
         props = badxml.xlsx_attributes(request.FILES['file'])
         return render(request, 'vulnerable/_xlsx_info.html', props)
@@ -180,43 +201,27 @@ def exception(request):
     raise Exception('Hm')
 
 
-# NOTE this exposes a template injection without length restriction,
-# so it's a good place to break out the ol sys with import
-# def reflected_xss(request, name=''):
-#     '''Reflect a URL parameter into the DOM, no protections.
-#     This actually contains a more general template injection.
-#     '''
-#     hello_template = '''
-#         {% extends "challenge.html" %}
-#         {% block title %}xss{% endblock %}
-#         {% block content %}
-#         <p>since the pentest found some xss, I'm redoing these to be more
-#         illustrative. ''' + name + '</p> {% endblock %}'
-#     html = _render_string_with_jinja2(hello_template, request=request)
-#     return HttpResponse(html, content_type='text/html')
-#
-#
-# def stored_xss(request, userid=-1):
-#     '''Also easy. Also has a template injection.'''
-#     # do the same thing but get the name from the db
-#     pass
-
-
 # Insecure Deserialization, Broken Access Control, Broken Authn,...
 @require_http_methods(['GET'])
-@auth.decorators.login_required  # authn w/o authz edit: actually, I'm keeping authz here
-def serialize_user(request, userid=0):
+@auth.decorators.login_required
+def serialize_user(request):
     '''Use this for combined broken auth, security misconfiguration,
     and insecure deserialization. Why not.
     '''
+    userid = request.GET.get('id', 0)
     try:
         user = auth.models.User.objects.get(id=userid)
-        if user.is_superuser:
+        if user.is_superuser and not request.user.is_superuser:
             raise PermissionDenied
-        encoded = codecs.encode(pickle.dumps(model_to_dict(user), 0), 'base64')
-        response = HttpResponse(encoded, content_type='application/octet-stream')
-        response['Content-Disposition'] = 'attachment; filename="{}"'.format(user.username)
-        return response
+        user_dict = model_to_dict(user)
+        if request.user.id != user.id:
+            # XXX hack to get some feedback in last minute
+            # NOTE flag hardcoded
+            user_dict['username'] = 'secret{43ab154d4788d1409fec5fcc7c632e69}'
+            user_dict['pwned'] = True  # XXX hack
+        encoded = codecs.encode(pickle.dumps(user_dict, 0), 'base64')
+        encoded = ''.join(codecs.decode(encoded, 'ascii').split('\n'))
+        return render(request, 'vulnerable/backup.html', {'backup': encoded})
     except auth.models.User.DoesNotExist:
         return Http404()
 
@@ -224,14 +229,23 @@ def serialize_user(request, userid=0):
 # Insecure Deserialization
 @require_http_methods(['POST'])
 def deserialize_user(request):
+    _flag_hack('783d31df5059c0918f1480c24cb21f71')
     try:
-        profile = request.FILES['profile'].read()
+        profile = codecs.encode(request.POST.get('profile'), 'ascii')
         data = pickle.loads(codecs.decode(profile, 'base64'))
         user = auth.models.User.objects.get(username=data['username'])
+        # TODO in the future add employee
     except auth.models.User.DoesNotExist:
         # Oops, lost the data lol
-        data.pop('id', None)  # don't wanna violate that unique id constraint
-        user = auth.models.User.create(**data)
+        # doing this manually and not *really* restoring data because
+        # create(**dict) doesn't work once you have a one-to-one link
+        # XXX refactor
+        email = data.get('pwned') and 'Good@job.my.dude' or None
+        user = auth.models.User.objects.create_user(
+            username=data['username'],
+            password=data['password'],
+            email=email
+        )
     except Exception as e:
         return render(
             request,
@@ -239,7 +253,10 @@ def deserialize_user(request):
             {'error': 'Something went wrong.', 'retry_name': 'profile'}
         )
 
-    auth.login(request, user)
+    if data.get('pwned'):
+        # XXX a hack to fix later...
+        return render(request, 'vulnerable/profile.html', {'user': user})
+
     return redirect(reverse('profile'))
 
 
@@ -249,14 +266,3 @@ def report(request):
     employee = user.employee
     print(employee)
     pass
-
-
-# Using Components With Known Vulnerabilities
-# | no exercise
-# | is it low status to use Equifax as the example
-
-
-# Insufficient Logging and Monitoring
-# | no exercise
-# | though a flashy option is to add monitoring to the container that you can
-# | show at the end as having detected some/all of the attacks
