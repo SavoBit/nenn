@@ -61,7 +61,7 @@ def make_user():
 
 
 def do_all():
-    for _ in range(7):
+    for _ in range(3):
         make_user()
     a = User.objects.create_user(username='admin', is_superuser=True, email='admin@lol.com', password=random.choice(WORDS) + random.choice(WORDS))
     print('made admin', a)
