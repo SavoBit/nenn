@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="content"
 <p>This is a Django app exposing (many) intentional vulnerabilities for use as
 an educational security tool. It should not be deployed to internet-facing
 servers, as they <i>will</i> be compromised.</p>
@@ -13,4 +14,5 @@ servers, as they <i>will</i> be compromised.</p>
     <a href="{{ url('login-check') }}?next={{ url('exercises') }}">View the exercises</a>
   </li>
 </ul>
+</div>
 {% endblock %}

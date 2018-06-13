@@ -10,9 +10,6 @@
 </nav>
 {% endblock %}
 
-{% block help %}
-{% endblock %}
-
 {% block body %}
   <p class="content">Here's a buggy XLSX file metadata viewer, and the source used to extract the XLSX
   author information. Can you exploit the handler to disclose secret files?</p>
@@ -101,5 +98,43 @@ def xlsx_attributes(f):
 {% endblock %}
 
 {% block help %}
+<p class="content">XML entities are XML data primitives. Parsers usually allow
+users to define their own:</p>
 
-{% endblock %}
+<pre class="box"><code>&lt;?xml version=&quot;1.0&quot; standalone=&quot;yes&quot; ?&gt;
+&lt;!DOCTYPE author [
+  &lt;!ELEMENT author&gt;
+  &lt;!ENTITY js &quot;John Smith&quot;&gt;
+]&gt;
+&lt;author&gt;&amp;js;&lt;/author&gt;
+
+--&gt; &lt;author&gt;John Smith&lt;/author&gt;
+</code></pre>
+<h4 class="subtitle">Exploitation</h4>
+
+<p>Some parsers allow entity
+definitions to point to external resources via URL&mdash;this is an external
+entity definition.</p>
+<p>Weakly configured parsers naively expand external entity definitions by requesting
+the URL, which can lead to sensitive data disclosure, internal network access,
+and even occasional RCE.</p>
+
+<p class="content">Here's an example definition which could be used to disclose
+local files.</p>
+
+<pre class="box"><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ELEMENT foo ANY &gt;
+  &lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot; &gt;
+]&gt;
+&lt;foo&gt;&amp;xxe;&lt;/foo&gt;
+</code></pre>
+
+<h4 class="subtitle">Mitigation</h4>
+<p>If you're starting something new, try to just avoid XML. Otherwise, use a
+<i>secure</i> library configured to prohibit XXE rather than rolling your own.
+Read the documentation to understand the security implication of what you're doing.</p>
+<p>And as always, if it came from a user, you should distrust it by default.</p>
+<p>For further information, consult the <a target="_blank" href="https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Processing">OWASP XXE Wiki</a>.</p>
+<br/>
+  {% endblock %}

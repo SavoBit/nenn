@@ -7,7 +7,7 @@ from django.contrib import auth
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import PermissionDenied
 from django.forms.models import model_to_dict
-from django.http import HttpResponse, Http404
+from django.http import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
@@ -30,10 +30,11 @@ def _render_string_with_jinja2(s, request=None, context=None):
 
 
 @auth.decorators.login_required  # authn w/o authz edit: actually, I'm keeping authz here
-def profile(request, userid=None):
+def profile(request):
     # super contrived
+    userid = request.GET.get('id', 0)
     if not userid:
-        return redirect(reverse('profile') + '/' + str(request.user.id))
+        return redirect(reverse('profile') + '?id=' + str(request.user.id))
     user = auth.models.User.objects.get(id=userid)
     if request.user.id != user.id:
         raise PermissionDenied
@@ -46,8 +47,8 @@ def profile(request, userid=None):
 
 
 def login_check(request):
+    '''just redir to the destination if already auth'd'''
     next = request.GET.get('next', '')
-    print(request.user)
     if request.user.is_authenticated:
         return redirect(next)
     else:

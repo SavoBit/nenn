@@ -62,24 +62,30 @@ def deserialize_user(request):
 {% endblock %}
 
 {% block help %}
-<p>If you're here doing the Broken Access Control exercise, this help is not for you ;)</p>
+<p>If you're here doing the Broken Access Control exercise, this help is not for you ;) Keep at it.</p>
 
 <p>Insecure Deserialization occurs when applications deserialize user-controlled content
 without first verifying its integrity. Discovering such a vulnerability is usually difficult,
-but successful exploitation is very dangerous.</p>
+but successful exploitation always has the potential for critical compromise.</p>
 
 <h4 class="subtitle">Exploitation</h4>
-<p>An attacker could send a maliciously crafted, serialized object</p>
-<p>For example, you might attempt to navigate to a profile other than yours to view
-private information, or access admin functionality by changing a claim in a session
-cookie (don't put claims in cookies! And sign them if you must).</p>
-<h4 class="subtitle">Mitigation</h4>
-<p>Mitigation requires consistent, enforced checking of client permissions.
-Understand that such checks must happen <i>server-side</i>&mdash;user claims should
-never be trusted on face value!</p>
-<p>Consider centralizing your authentication and authorization checks, and consolidating
-application entrypoints to ensure that all requests go through adequate access control
-checks</p>
+<p>Exploitation requires an attacker to input malicious serialized data into an
+application's deserializing routine.</p>
+<p>For our exercise, you should consider what constitutes malicious serialized data to
+begin with. This application uses <a target="_blank" href="https://docs.python.org/3/library/pickle.html">pickles</a>
+to backup and restore user content. The user can then restore their data by uploading
+the (base64-encoded) pickle back to the application.</p>
+<p>When a Python object is serialized, Python needs to know how to restore its original state.
+The pickle library looks in several places for this, but <a target="_blank" href="https://docs.python.org/3/library/pickle.html#object.__reduce__">here's</a> a good place to start.</a></p>
 
-<p>For further information, consult the <a target="_blank" href="https://www.owasp.org/index.php/Broken_Access_Control">OWASP Broken Access Control wiki</a>.
+<p>If you successfully exploit this service, you will find a file in the working directory called <code>secret.txt</code></p>
+
+<h4 class="subtitle">Mitigation</h4>
+<p>Frankly, the only way to wholly mitigate the risks of insecure deserialization is to never accept serialized objects
+from untrusted sources. Otherwise, cryptogrphically sign objects to detect tampering, and
+run deserialization code in the lowest possible privilege environments.</p>
+<p>As always, distrust all application inputs by default!</p>
+
+<p>For further information, consult the <a target="_blank" href="https://www.owasp.org/index.php/Deserialization_Cheat_Sheet">OWASP Insecure Deserialization Cheat Sheet</a>.</p>
+<br/>
 {% endblock %}

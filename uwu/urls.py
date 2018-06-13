@@ -28,11 +28,10 @@ urlpatterns = [
         name='shell-injection3'),
     url(r'^injection1/?$', challenges.injection1, name='injection1'),
     url(r'^injection2/?$', challenges.injection2, name='injection2'),
-    url(r'^injection3/?$', challenges.injection2, name='injection3'),
+    url(r'^injection3/?$', challenges.injection3, name='injection3'),
 
     # Broken Access Control,... a lot of things
     url(r'^profile/?$', challenges.profile, name='profile'),
-    url(r'^profile/(?P<userid>\d+)/?$', challenges.profile, name='serialize-user'),
 
     # SQLi
     url(r'^admin/?$', challenges.admin, name='admin'),
@@ -60,7 +59,7 @@ urlpatterns = [
     url(r'^restore-backup/?$',
         TemplateView.as_view(template_name='vulnerable/restore-backup.html'),
         name='restore-backup'),
-    url(r'^profile/backup/(?P<userid>\d+)/?$', challenges.serialize_user, name='serialize-user'),
+    url(r'^profile/backup/?$', challenges.serialize_user, name='serialize-user'),
     url(r'^deserialize/?$', challenges.deserialize_user, name='deserialize-user'),
 
     # more challenging phantomjs thing

@@ -1,6 +1,8 @@
 {% extends "syntax_highlight.html" %}
 
-{% block content %}
+{% block exercise_name %}SQL Injection{% endblock %}
+
+{% block body %}
   <div class="content">
   {% if "admin" in next %}
   <h3 class="title">Admin View</h3>
@@ -8,15 +10,15 @@
   <p>Your account doesn't have access to this page. To proceed,
   please login with an account that has access.</p>
   {% else %}
+  <p>Please login to see this page.</p>
+  {% endif %}
+  {% else %}
+  <p>Please enter your credentials.</p>
   <script>
     // more hax lol
     var el = document.getElementById('helpButton')
     el.parentNode.removeChild(el)
   </script>
-  <p>Please login to see this page.</p>
-  {% endif %}
-  {% else %}
-  <p>Please enter your credentials.</p>
   {% endif %}
   </div>
 
@@ -24,7 +26,6 @@
   <p>Wrong creds.</p>
   {% endif %}
 
-  <!-- just user regular1:password1 in dev -->
   <form method="post" action="{{ url('login') }}">
     {{ csrf_input }}
     <div class="field">
@@ -50,3 +51,32 @@
     {% endif %}
   </form>
 {% endblock %}
+
+{% block help %}
+<p>If you need a hint with this exercise, look in the console where this container is running.</p>
+
+<p>SQL Injection occurs when an attacker is able to trick an application into running unintended SQL queries.
+It's possible whenever queries are constructed dynamically with user input in an unsafe way.</p>
+
+<h4 class="subtitle">Exploitation</h4>
+<p>An attack can exploit this by inputting their own SQL queries. For example, if an application implements its login mechanism by constructing a query like this</p>
+<pre class="box"><code>user = "select * from users where username = '" + input + "' and password = '" + input2 + "';"
+</code></pre>
+<p>an attacker might input <code>a'; drop table users; -- '</code> for <code>input</code>, and <code>a</code> for <code>input2</code>. The final query would become</p>
+<pre class="box"><code>"select * from users where username = 'a'; drop table users; -- 'a';"</code></pre>
+<p>deleting all the application's user info on execution.</p>
+
+<p>Other inputs could allow the attacker to bypass authentication, impersonate the admin, disclose sensitive files,
+or even execute arbitrary code.</p>
+
+<h4 class="subtitle">Mitigation</h4>
+<p>Just like with <a href="{{ url('shell-injection') }}">Command Injection</a>, build your queries (your <i>commands</i>)
+with safe APIs, like an ORM. For example, in Django, the built-in should ORM keep you safe from SQL injection.
+For cases where you must use raw SQL, build your queries with a parameterized interface:</p>
+<pre class="box"><code>objects.raw('SELECT * FROM app_model WHERE column = %s', [parameter])
+</code></pre>
+<p>which at least quotes your queries automatically for you.</p>
+  <p>For further information, consult the <a target="_blank" href="https://www.owasp.org/index.php/SQL_Injection">OWASP SQL Injection Wiki</a>. And as always, treat all data flowing into your application with caution, as it could be malicious.</p>
+<br/>
+{% endblock %}
+

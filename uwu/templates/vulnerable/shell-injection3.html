@@ -42,7 +42,8 @@
     <pre><code>
 def injection3(request):
     '''Let's see you inject /bin/cat now!'''
-    blacklist = ['cat', 'secret.txt']
+    # obviously you can use another command, but that's no fun
+    blacklist = ['cat', 'secret']
     host = request.POST.get('domain')
     cmd = 'whois ' + host
 
@@ -71,4 +72,5 @@ def injection3(request):
   Just to be sure, you can always just inject commands other than <code>cat</code>.
   But that would be cheating! Find another solution and let me know how you did it.
   </p>
+  <p>For further information, consult the <a target="_blank" href="https://www.owasp.org/index.php/Top_10-2017_A1-Injection">OWASP Injection Wiki</a>.</p>
   {% endblock %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "exercise.html" %}
 
 {% block headerkludge %}
 <nav class="breadcrumb" aria-label="breadcrumbs">
@@ -10,8 +10,8 @@
 </nav>
 {% endblock %}
 
-{% block content %}
-<table class="table content">
+{% block body %}
+<table class="table is-narrow">
   <thead>
     <tr>
       <th></th>
@@ -21,7 +21,7 @@
       <th>ID</th>
       <th>SSN</th>
       <th>DOB</th>
-      <th>Phone</th>
+      <!--<th>Phone</th>-->
     </tr>
   </thead>
   <tbody>
@@ -29,7 +29,7 @@
     <tr>
       <td>
         <div class="control is-narrow">
-          <a class="button is-danger is-outlined is-small" href="{{ url('profile') }}/backup/{{ user.id }}">Delete</a>
+          <a class="button is-danger is-outlined is-small" href="#not-implemented-lol">Delete</a>
         </div>
       </td>
       <td>{{ user.username }}</td>
@@ -39,7 +39,7 @@
       {% if user.employee %}
       <td>{{ user.employee.ssn }}</td>
       <td>{{ user.employee.date_of_birth }}</td>
-      <td>{{ user.employee.phone }}</td>
+      <!--<td>{{ user.employee.phone }}</td>-->
       {% else %}
       <td></td>
       <td></td>
@@ -49,4 +49,8 @@
     {% endfor %}
   </tbody>
 </table>
+{% endblock %}
+
+{% block help %}
+What do you need help for? You're already in!
 {% endblock %}
