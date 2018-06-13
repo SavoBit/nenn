@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block headerkludge %}
+<nav class="breadcrumb" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="{{ url('home') }}">Home</a></li>
+    <li><a href="{{ url('exercises') }}">Exercises</a></li>
+    <li class="is-active"><a href="#" aria-current="page">Broken Access Control</a></li>
+  </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h3 class="title">User Profile Backup</h3>
+
+<textarea class="textarea" rows="10" name="profile" readonly>
+  {{ backup }}
+</textarea>
+
+<div class="section">
+  <div class="field is-grouped horizontal">
+    <div class="control is-narrow">
+      <a class="button" href="{{ url('profile') }}/backup/{{ request.user.id }}">Download Backup</a>
+    </div>
+    <div class="control is-narrow">
+      <a class="button" href="{{ url('restore-backup') }}">Restore Backup</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
