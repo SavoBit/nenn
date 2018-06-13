@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block headerkludge %}
+<nav class="breadcrumb" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="{{ url('home') }}">Home</a></li>
+    <li><a href="{{ url('exercises') }}">Exercises</a></li>
+    <li class="is-active"><a href="#" aria-current="page">{% block exercise %}{% endblock %}</a></li>
+  </ul>
+</nav>
+{% endblock %}
+
+{% block morehax %}
+<div class="content is-pulled-right" id="helpButton">
+  <div class="control">
+    <button class="button is-danger is-outlined" onclick="toggleHelp()">Help</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+{% block body %}
+{% endblock %}
+<div class="modal" id="modal">
+  <div class="modal-background toggle"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">{% block exercise_name %}{% endblock %}</p>
+    </header>
+    <section class="modal-card-body">
+      <div class="content">
+        {% block help %}{% endblock %}
+      </div>
+    </section>
+    <footer class="modal-card-foot"></footer>
+  </div>
+</div>
+<script>
+  var el = document.getElementById('modal')
+var toggleHelp = function() {
+  el.classList.toggle('is-active')
+}
+for (let c of el.getElementsByClassName("toggle")) {
+  c.addEventListener('click', toggleHelp)
+}
+document.onkeydown = function(evt) {
+  evt = evt || window.event;
+  if (evt.keyCode == 27) {
+    el.classList.remove('is-active')
+  }
+}
+</script>
+{% endblock %}
+
