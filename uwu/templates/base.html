@@ -12,11 +12,19 @@
 		<div class="hero" id="schroedingers-header">
 			<div class="hero-body">
 				<div class="container">
+          {% block morehax %}{% endblock %}  <!-- just for the help button -->
 					{% block header %}
 					<h2 class="title"><a href="/">WebApp Security 101</a></h2>
 					<h4 class="subtitle">Exploiting and Mitigating the OWASP Top 10</h4>
           {% if request.user.is_authenticated %}
-          <p class="content">User: <a href="{{ url('profile') }}">{{ request.user }}</a> | <a href="{{ url('logout') }}">Logout</a></p>
+          <p class="content">
+          {% if request.user.is_superuser %}
+          Admin: <span class="has-text-danger">Yes</span> |
+          {% else %}
+          Admin: <span class="has-text-success">No</span> |
+          {% endif %}
+          User: <a href="{{ url('profile') }}">{{ request.user }}</a> |
+          <a href="{{ url('logout') }}">Logout</a></p>
           {% endif %}
 					{% block headerkludge %}
 					{% endblock %}
